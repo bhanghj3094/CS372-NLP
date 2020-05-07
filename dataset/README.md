@@ -19,13 +19,13 @@
 
 ### CSVReader.py
 #### Option for Using
-1, Place csvReader.py in the root directory of Dataset
+1. Place csvReader.py in the root directory of Dataset
 2. Dataset folder number starts from 1 (1~5)
 3. File number starts from 0
 
-##### Usage
+#### Usage
 > rdr = Reader()
 > rdr.open_csv(3,0) #folder#_3 - file_0
 
-##### Return
+#### Return
 List of Tuples : [(reviewText,rating),]
