@@ -48,7 +48,7 @@ for dataset in datasets:
     file.close()
 
     # Save into csv
-    name = "output/" + dataset.split(".")[0] + ".csv"
+    name = "output/" + dataset.split(".")[0] + "(" + str(len(reviews)) + ").csv"
     output = open(name, "w")
     for review in reviews:
         try:
