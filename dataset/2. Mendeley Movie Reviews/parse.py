@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, json, gzip
+import os, json, gzip, csv
 import pandas as pd
 import pprint
 
@@ -37,7 +37,7 @@ for index, dataset in enumerate(datasets):
 
     # Save into csv
     name = "output/" + dataset + "(" + str(len(reviews)) + ").csv"
-    output = open(name, "w")
-    for review, rating in reviews:
-        output.write(",".join([review, rating]) + "\n")
+    output = open(name, "w", newline="")
+    writer = csv.writer(output)
+    writer.writerow(reviews)
     output.close()

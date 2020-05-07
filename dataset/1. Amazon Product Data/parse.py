@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os, json, gzip
+import os, json, gzip, csv
 import pandas as pd
 import pprint
 
@@ -38,23 +38,31 @@ datasets = [
     "Video_Games_5.json.gz"
 ]
 
+threshold = 100000
 for dataset in datasets:
     # Open gzip files
     file = gzip.open(dataset, 'r')
-    reviews = [
-        json.loads(line.strip())
-        for line in file.readlines()
-    ]
+    reviews = []
+    for _ in range(threshold):
+        line = file.readline()
+        if not line: break
+        review = json.loads(line.strip())
+        reviews.append(review)
     file.close()
+
+    # Filter only those with reviewText, and overall.
+    filtered_reviews = []
+    for review in reviews:
+        try:
+            text = review['reviewText']
+            rating = review['overall']
+            filtered_reviews.append((text, rating))
+        except KeyError:
+            continue
 
     # Save into csv
     name = "output/" + dataset.split(".")[0] + "(" + str(len(reviews)) + ").csv"
-    output = open(name, "w")
-    for review in reviews:
-        try:
-            text = " ".join(review['reviewText'].split("\n"))
-            rating = str(review['overall'])
-            output.write(",".join([text, rating]) + "\n")
-        except KeyError:
-            continue
+    output = open(name, "w", newline="")
+    writer = csv.writer(output)
+    writer.writerow(filtered_reviews)
     output.close()
