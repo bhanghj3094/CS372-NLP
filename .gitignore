@@ -1,7 +1,8 @@
 # python
 venv/
 
-# parsed data
+# dataset, and parsed data
+*.txt
 *.csv
 
 # env
