@@ -1,0 +1,6 @@
+# env
+.vscode
+
+# Others
+.DS_store
+.cache
