@@ -45,13 +45,14 @@ for dataset in datasets:
         json.loads(line.strip())
         for line in file.readlines()
     ]
+    file.close()
 
     # Save into csv
     name = "output/" + dataset.split(".")[0] + ".csv"
     output = open(name, "w")
     for review in reviews:
         try:
-            text = review['reviewText']
+            text = " ".join(review['reviewText'].split("\n"))
             rating = str(review['overall'])
             output.write(",".join([text, rating]) + "\n")
         except KeyError:
