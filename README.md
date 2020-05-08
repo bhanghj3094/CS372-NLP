@@ -18,6 +18,9 @@ Please refer to the scheme [here](./dataset).
 
 ### Methodology/Algorithm
 
+#### 1. Pos-Neg Scoring
+Using SentiWordnet, scores the rate of positive and negative of each words in sentence.
+
 ### Evaluation
 
 ### Related Works
