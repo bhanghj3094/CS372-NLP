@@ -10,7 +10,7 @@ Please refer to the [course homepage](http://nlpcl.kaist.ac.kr/~cs372_2020/index
 
 ### Problem Description
 
-These days, there are numerous online contents, such as movie or application reviews, and people react to them with comments. However, malicious comments are becoming a social problem. In this project, it starts with simple preference discriminator with various NLTK techniques, and expands over different datasets. Preference discriminator refers to assessing how positive or negative the reviewers are about the content they watch or use. All works are done only with the use of NLTK.
+These days, there are numerous online contents, such as movie or application reviews, and people react to them with comments. However, malicious comments are becoming a social problem. In this project, it starts with simple preference discriminator, and expands over different datasets. *Preference discriminator* refers to assessing how positive or negative the reviewers are about the content they watch or use. All works are done only with NLTK.
 
 ### Dataset
 
@@ -54,7 +54,7 @@ Refer to [commit messages in the repository](https://github.com/bhanghj3094/CS37
 
 ## Collaborators
 
-* [Jae Hyun, Myeong](https://github.com/mjhbest)
+* [Jae Hyeon, Myeong](https://github.com/mjhbest)
 * [Hyoung Jo, Bhang](https://github.com/bhanghj3094)
 * [Da Eun, Choi](https://github.com/CheddarChoi)
 * [Jin Won, Lee](https://github.com/grape-tasting-acid)
