@@ -8,6 +8,7 @@ from nltk.tag import pos_tag
 from nltk.corpus import wordnet as wn
 from nltk.corpus import sentiwordnet as swn
 from nltk.stem.lancaster import LancasterStemmer
+from csvReader import Reader
 
 
 
@@ -80,7 +81,7 @@ def get_score(review):
         else:
             new_score = get_sentiment(tagged_word[0], tagged_word[1])
 
-        if not new_score is None:           
+        if not new_score is None:
             for i in range (2):
                 score[i] += new_score[i]
             if score[0] != 0 or score[1] != 0:
@@ -108,7 +109,7 @@ def get_score_with_neg_check(review):
         else:
             new_score = get_sentiment(tagged_word[0], tagged_word[1])
 
-        if not new_score is None:           
+        if not new_score is None:
             if neg_check == 1:
                 new_score[0], new_score[1] = new_score[1], new_score[0]
             for i in range (2):
@@ -156,30 +157,32 @@ good_review = "This place is really nice! The food is good (they have seasonal r
 bad_review = "My first experience with Jimmy John's was this location and I have to admit it will be my last. The guy who waited on me was extremely unprofessional, he didn't give me any idea of the order process and got extremely short with me when placing my order. When repeating my order, he spoke so fast I couldnt understand what he said so I ordered something I didnt want. Then realizing I wasn't asked what I wanted on my sandwich specifically, so I went back over to confirm my order. This guy actually gave me an attitude and sighed (loudly)when I wanted my sandwich corrected without meat before it even made! I waited for my sandwich and I was told he was the GENERAL MANAGER! The staff of ladies were on point and apologized for his behavior. Unfortunately the tasty sandwich didn't make-up for his nasty attitude."
 
 
-path = os.path.dirname(os.path.realpath(__file__))
-
-
-f = open(path +"\All_Beauty_5(5269).csv", 'r', encoding='utf-8')
-
-rdr = csv.reader(f)
-for line in rdr: 
-      c = 0
-
-f.close()
+# path = os.path.dirname(os.path.realpath(__file__))
+#
+#
+# f = open(path +"\All_Beauty_5(5269).csv", 'r', encoding='utf-8')
+#
+# rdr = csv.reader(f)
+# for line in rdr:
+#       c = 0
+#
+# f.close()
+rdr = Reader()
+lines = rdr.open_csv(5,3)
 
 result_list = list()
 
 tot1 = tot2 = 0
 
-for i in range(len(line)):
-    res = str(rate_five(get_score(line[i])))
-    res2 = str(rate_five(get_score_with_neg_check(line[i])))
-    ans = line[i][-4:-1]
+for line in lines:
+    res = str(rate_five(get_score(line[0])))
+    res2 = str(rate_five(get_score_with_neg_check(line[0])))
+    ans = line[1]
     print("ours: " + res + " ours_neg: " + res2 + " real: " + ans)
     tot1 += abs(float(res) - float(ans))
     tot2 += abs(float(res2) - float(ans))
     result_list.append([ans, res, res2])
 
-print("original_ver: " + str(tot1/len(line)) + "add_neg_ver: " + str(tot2/len(line)))
+print("original_ver: " + str(tot1/len(lines)) + "add_neg_ver: " + str(tot2/len(lines)))
 
 csv_write("scoring_result.csv", result_list)
