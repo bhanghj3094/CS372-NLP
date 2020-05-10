@@ -1,16 +1,10 @@
-import nltk
-import csv
-import os
-
-
+import nltk, csv, os
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
 from nltk.corpus import wordnet as wn
 from nltk.corpus import sentiwordnet as swn
 from nltk.stem.lancaster import LancasterStemmer
-from csvReader import Reader
-
-
+from dataset.csvReader import Reader
 
 stemmer = LancasterStemmer()
 
@@ -92,9 +86,6 @@ def get_score_org(review):
         return [s*100/cnt for s in score]
 
 
-
-
-
 #*5 scores in last two stc.
 def get_score(review):
     """ Calculate own score by tokenized words' negativity/positivity """
@@ -124,6 +115,7 @@ def get_score(review):
         return [0, 0]
     else:
         return [s*100/cnt for s in score]
+
 
 def get_score_with_neg_check(review):
     """ Calculate own score by tokenized words' negativity/positivity and double negation check """
@@ -160,12 +152,14 @@ def get_score_with_neg_check(review):
     else:
         return [s*100/cnt for s in score]
 
+
 def rate_five(score):
     """ function that converts score list into 0~5 rate """
     if score[0] == 0 and score[1] == 0:
         return 2.5
     else:
         return 5* score[0]/(score[0]+score[1])
+
 
 def csv_write(file_name, pairs_list):
     """ function to make output file """
@@ -184,20 +178,14 @@ def csv_write(file_name, pairs_list):
         csv_file.write('\n')
     csv_file.close()
 
-# Get input
-# For now, just get input manually
-# review = input()
-good_review = "This place is really nice! The food is good (they have seasonal rotations, so the menu changes often). I’ve been a few times and have always left satisfied. The workers are really friendly. They have good vegetarian options, and I like their coffee. Only downside is it’s a little pricey. It’s a cute place to go, though, and you can browse books after you eat! The book selection is good for a small, local bookstore. It’s not a place I’d go all the time, but it’s really fun to bring visitors to and a great option if you’re in the area."
-bad_review = "My first experience with Jimmy John's was this location and I have to admit it will be my last. The guy who waited on me was extremely unprofessional, he didn't give me any idea of the order process and got extremely short with me when placing my order. When repeating my order, he spoke so fast I couldnt understand what he said so I ordered something I didnt want. Then realizing I wasn't asked what I wanted on my sandwich specifically, so I went back over to confirm my order. This guy actually gave me an attitude and sighed (loudly)when I wanted my sandwich corrected without meat before it even made! I waited for my sandwich and I was told he was the GENERAL MANAGER! The staff of ladies were on point and apologized for his behavior. Unfortunately the tasty sandwich didn't make-up for his nasty attitude."
 
-
+# Run
 rdr = Reader()
-lines = rdr.open_csv(5,3)
+lines = rdr.open_csv(2, 2)
 
 result_list = list()
 
 tot1 = tot2 = 0
-
 for line in lines:
     res = str(rate_five(get_score(line[0])))
     res2 = str(rate_five(get_score_with_neg_check(line[0])))

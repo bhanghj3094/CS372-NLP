@@ -1,15 +1,17 @@
-import os
-import csv
-import pandas
+import os, csv
+import pandas as pd
 
 class Reader():
+	"""
+	Dataset Reader for csv files. 
+	Set working directory to current directory, and process read_csv.
+	"""
 	def __init__(self):
-		self.directory = os.getcwd() #code directory, 기본 설정 :  가장 바깥으로
+		self.directory = os.getcwd() + '/dataset'
 		self.folder = ''
 		self.file = ''
 
 	def get_folder(self,num):
-		
 		folders = os.listdir(self.directory)
 		dirs = []
 		for fold in folders:
@@ -17,7 +19,7 @@ class Reader():
 				dirs.append(fold)
 		dirs = sorted(dirs)
 		fo = os.path.join(self.directory,self.match_dir(dirs,num))
-		return fo #Folder number starts from 1 (1~5)
+		return fo # Folder number starts from 1 (1~5)
 
 	def match_dir(self,folders,num):
 		for fold in folders:
@@ -27,12 +29,13 @@ class Reader():
 	def get_file(self,folder,num):
 		files = os.listdir(folder)
 		files = sorted(files)
-		return os.path.join(folder,files[num]) #File num starts from 0
+		return os.path.join(folder,files[num]) # File num starts from 0
 
-	def open_csv(self,folder,file): #Return (Review_text,Rating) Tuple List
+	# Return list of tuples [(Review_text, Rating), ..]
+	def open_csv(self,folder,file):
 		self.folder = self.get_folder(folder)
 		self.file =  self.get_file(self.folder,file)
-		read_csv = pandas.read_csv(self.file,header=None).values.tolist()
+		read_csv = pd.read_csv(self.file,header=None).values.tolist()
 		tuples = self.make_tuples(read_csv[0])
 		return tuples
 
@@ -45,14 +48,3 @@ class Reader():
 		for tup in csv:
 			tuples.append(self.split(tup))
 		return tuples
-
-"""
-1. Datasets 폴터 가장 상단에 놓고 사용 
-2. 폴더번호는 1번, 파일번호는 0번 부터 시작
-
-#csvReader Usage
-rdr = Reader()
-print(rdr.open_csv(3,1))
-
-"""
-
