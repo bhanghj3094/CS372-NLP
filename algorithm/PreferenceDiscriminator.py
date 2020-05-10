@@ -17,6 +17,7 @@ def additional_stemmer(word):
         return "not"
     elif word.endswith("n't"):
         return word.split("n't")[0] + " not"
+    return word
 
 def stemmer(word):
     """ Stemmer for use """
@@ -192,7 +193,6 @@ def csv_write(file_name, pairs_list):
 # review = input()
 good_review = "This place is really nice! The food is good (they have seasonal rotations, so the menu changes often). I’ve been a few times and have always left satisfied. The workers are really friendly. They have good vegetarian options, and I like their coffee. Only downside is it’s a little pricey. It’s a cute place to go, though, and you can browse books after you eat! The book selection is good for a small, local bookstore. It’s not a place I’d go all the time, but it’s really fun to bring visitors to and a great option if you’re in the area."
 bad_review = "My first experience with Jimmy John's was this location and I have to admit it will be my last. The guy who waited on me was extremely unprofessional, he didn't give me any idea of the order process and got extremely short with me when placing my order. When repeating my order, he spoke so fast I couldnt understand what he said so I ordered something I didnt want. Then realizing I wasn't asked what I wanted on my sandwich specifically, so I went back over to confirm my order. This guy actually gave me an attitude and sighed (loudly)when I wanted my sandwich corrected without meat before it even made! I waited for my sandwich and I was told he was the GENERAL MANAGER! The staff of ladies were on point and apologized for his behavior. Unfortunately the tasty sandwich didn't make-up for his nasty attitude."
-
 
 rdr = Reader()
 lines = rdr.open_csv(5,3)
