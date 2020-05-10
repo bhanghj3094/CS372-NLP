@@ -1,9 +1,18 @@
 import nltk
+import csv
+import os
+
+
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
 from nltk.corpus import wordnet as wn
 from nltk.corpus import sentiwordnet as swn
 from nltk.stem.lancaster import LancasterStemmer
+
+
+
+
+
 stemmer = LancasterStemmer()
 
 ######### Helper Functions ########
@@ -59,6 +68,8 @@ def get_score(review):
     # Initialize scores
     score = [0, 0]
     cnt = 0
+
+
     tagged_word_list = nltk.pos_tag(nltk.word_tokenize(review))
     for tagged_word in tagged_word_list:
         if not check_word(tagged_word[0]):
@@ -68,11 +79,63 @@ def get_score(review):
             new_score = get_sentiment(lemmatized_word, tagged_word[1])
         else:
             new_score = get_sentiment(tagged_word[0], tagged_word[1])
-        if not new_score is None:
+
+        if not new_score is None:           
             for i in range (2):
                 score[i] += new_score[i]
-            cnt += 1
-    return [s*100/cnt for s in score]
+            if score[0] != 0 or score[1] != 0:
+                cnt += 1
+    if cnt == 0:
+        return [0, 0]
+    else:
+        return [s*100/cnt for s in score]
+
+def get_score_with_neg_check(review):
+    # Initialize scores
+    score = [0, 0]
+    cnt = 0
+
+    neg_check = 0
+
+    tagged_word_list = nltk.pos_tag(nltk.word_tokenize(review))
+    for tagged_word in tagged_word_list:
+        if not check_word(tagged_word[0]):
+            continue
+        if tagged_word[1].startswith('V'):
+            lemmatized_word = stemmer.stem(tagged_word[0])
+            new_score = get_sentiment(lemmatized_word, tagged_word[1])
+        else:
+            new_score = get_sentiment(tagged_word[0], tagged_word[1])
+
+        if not new_score is None:           
+            if neg_check == 1:
+                new_score[0], new_score[1] = new_score[1], new_score[0]
+            for i in range (2):
+                score[i] += new_score[i]
+            if score[0] != 0 or score[1] != 0:
+                cnt += 1
+            if score[0] < score[1]:
+                neg_check = 1
+            elif score[1] >= score[0]:
+                neg_check = 0
+
+    if cnt == 0:
+        return [0, 0]
+    else:
+        return [s*100/cnt for s in score]
+
+
+
+
+
+
+
+#function that converts score list into 0~5 rate
+def rate_five(score):
+    if score[0] == 0 and score[1] == 0:
+        return 2.5
+    else:
+        return 5* score[0]/(score[0]+score[1])
 
 # Get input
 # For now, just get input manually
@@ -80,5 +143,31 @@ def get_score(review):
 good_review = "This place is really nice! The food is good (they have seasonal rotations, so the menu changes often). I’ve been a few times and have always left satisfied. The workers are really friendly. They have good vegetarian options, and I like their coffee. Only downside is it’s a little pricey. It’s a cute place to go, though, and you can browse books after you eat! The book selection is good for a small, local bookstore. It’s not a place I’d go all the time, but it’s really fun to bring visitors to and a great option if you’re in the area."
 bad_review = "My first experience with Jimmy John's was this location and I have to admit it will be my last. The guy who waited on me was extremely unprofessional, he didn't give me any idea of the order process and got extremely short with me when placing my order. When repeating my order, he spoke so fast I couldnt understand what he said so I ordered something I didnt want. Then realizing I wasn't asked what I wanted on my sandwich specifically, so I went back over to confirm my order. This guy actually gave me an attitude and sighed (loudly)when I wanted my sandwich corrected without meat before it even made! I waited for my sandwich and I was told he was the GENERAL MANAGER! The staff of ladies were on point and apologized for his behavior. Unfortunately the tasty sandwich didn't make-up for his nasty attitude."
 
-print(get_score(good_review))
-print(get_score(bad_review))
+
+path = os.path.dirname(os.path.realpath(__file__))
+
+
+f = open(path +"\All_Beauty_5(5269).csv", 'r', encoding='utf-8')
+
+rdr = csv.reader(f)
+for line in rdr: 
+      c = 0
+
+f.close()
+
+tot1 = tot2 = 0
+
+for i in range(len(line)):
+    res = str(rate_five(get_score(line[i])))
+    res2 = str(rate_five(get_score_with_neg_check(line[i])))
+    ans = line[i][-4:-1]
+    print("ours: " + res + " ours_neg: " + res2 + " real: " + ans)
+    tot1 += abs(float(res) - float(ans))
+    tot2 += abs(float(res2) - float(ans))
+
+
+
+
+
+print("original_ver: " + str(tot1/len(line)) + "add_neg_ver: " + str(tot2/len(line)))
+    
