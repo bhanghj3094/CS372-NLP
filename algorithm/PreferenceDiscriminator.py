@@ -64,7 +64,9 @@ def get_sentiment(word, tag):
     swn_synset = swn.senti_synset(wn_synset.name())
     return [swn_synset.pos_score()**2, swn_synset.neg_score()**2, swn_synset.obj_score()**2]
 
-def get_score(review):
+
+#original version without any additional methods
+def get_score_org(review):
     """ Calculate own score by tokenized words' negativity/positivity """
     # Initialize scores
     score = [0, 0]
@@ -85,6 +87,40 @@ def get_score(review):
                 score[i] += new_score[i]
             if score[0] != 0 or score[1] != 0:
                 cnt += 1
+    if cnt == 0:
+        return [0, 0]
+    else:
+        return [s*100/cnt for s in score]
+
+
+
+
+
+#*5 scores in last two stc.
+def get_score(review):
+    """ Calculate own score by tokenized words' negativity/positivity """
+    # Initialize scores
+    score = [0, 0]
+    cnt = 0
+    words = nltk.sent_tokenize(review)
+    for sent in range(len(words)):
+        tagged_word_list = nltk.pos_tag(nltk.word_tokenize(words[sent]))
+        for tagged_word in tagged_word_list:
+            if not check_word(tagged_word[0]):
+                continue
+            if tagged_word[1].startswith('V'):
+                lemmatized_word = stemmer.stem(tagged_word[0])
+                new_score = get_sentiment(lemmatized_word, tagged_word[1])
+            else:
+                new_score = get_sentiment(tagged_word[0], tagged_word[1])
+
+            if not new_score is None:           
+                for i in range (2):
+                    if sent == (len(words) - 1) or sent == (len(words) -2):
+                        score[i] *= 5
+                    score[i] += new_score[i]
+                if score[0] != 0 or score[1] != 0:
+                    cnt += 1
     if cnt == 0:
         return [0, 0]
     else:
@@ -159,7 +195,7 @@ bad_review = "My first experience with Jimmy John's was this location and I have
 path = os.path.dirname(os.path.realpath(__file__))
 
 
-f = open(path +"\All_Beauty_5(5269).csv", 'r', encoding='utf-8')
+f = open(path +"\Appliances_5(2277).csv", 'r', encoding='utf-8')
 
 rdr = csv.reader(f)
 for line in rdr: 
