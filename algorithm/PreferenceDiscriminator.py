@@ -162,10 +162,11 @@ def get_score_with_neg_check(review):
 
 def rate_five(score):
     """ function that converts score list into 0~5 rate """
-    if score[0] == 0 and score[1] == 0:
-        return 2.5
-    else:
-        return 5* score[0]/(score[0]+score[1])
+    # if score[0] == 0 and score[1] == 0:
+    #     return 2.5
+    # else:
+    #     return 5* score[0]/(score[0]+score[1])
+    return score[0]-score[1]
 
 def csv_write(file_name, pairs_list):
     """ function to make output file """
