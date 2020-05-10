@@ -2,7 +2,6 @@ import nltk
 import csv
 import os
 
-
 from nltk.tokenize import word_tokenize
 from nltk.tag import pos_tag
 from nltk.corpus import wordnet as wn
@@ -10,11 +9,19 @@ from nltk.corpus import sentiwordnet as swn
 from nltk.stem.lancaster import LancasterStemmer
 from csvReader import Reader
 
-
-
-stemmer = LancasterStemmer()
-
 ######### Helper Functions ########
+
+def additional_stemmer(word):
+    """ Additional stemmer (You can add more pattern) """
+    if word == "n't":
+        return "not"
+    elif word.endswith("n't"):
+        return word.split("n't")[0] + " not"
+
+def stemmer(word):
+    """ Stemmer for use """
+    word = additional_stemmer(word)
+    return LancasterStemmer().stem(word)
 
 def synset_name(synset):
     """ function to change synset into string """
@@ -63,7 +70,6 @@ def get_sentiment(word, tag):
     swn_synset = swn.senti_synset(wn_synset.name())
     return [swn_synset.pos_score()**2, swn_synset.neg_score()**2, swn_synset.obj_score()**2]
 
-
 #original version without any additional methods
 def get_score_org(review):
     """ Calculate own score by tokenized words' negativity/positivity """
@@ -76,7 +82,7 @@ def get_score_org(review):
         if not check_word(tagged_word[0]):
             continue
         if tagged_word[1].startswith('V'):
-            lemmatized_word = stemmer.stem(tagged_word[0])
+            lemmatized_word = stemmer(tagged_word[0])
             new_score = get_sentiment(lemmatized_word, tagged_word[1])
         else:
             new_score = get_sentiment(tagged_word[0], tagged_word[1])
@@ -91,10 +97,6 @@ def get_score_org(review):
     else:
         return [s*100/cnt for s in score]
 
-
-
-
-
 #*5 scores in last two stc.
 def get_score(review):
     """ Calculate own score by tokenized words' negativity/positivity """
@@ -108,7 +110,7 @@ def get_score(review):
             if not check_word(tagged_word[0]):
                 continue
             if tagged_word[1].startswith('V'):
-                lemmatized_word = stemmer.stem(tagged_word[0])
+                lemmatized_word = stemmer(tagged_word[0])
                 new_score = get_sentiment(lemmatized_word, tagged_word[1])
             else:
                 new_score = get_sentiment(tagged_word[0], tagged_word[1])
@@ -138,7 +140,7 @@ def get_score_with_neg_check(review):
         if not check_word(tagged_word[0]):
             continue
         if tagged_word[1].startswith('V'):
-            lemmatized_word = stemmer.stem(tagged_word[0])
+            lemmatized_word = stemmer(tagged_word[0])
             new_score = get_sentiment(lemmatized_word, tagged_word[1])
         else:
             new_score = get_sentiment(tagged_word[0], tagged_word[1])
