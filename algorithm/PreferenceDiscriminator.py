@@ -181,3 +181,5 @@ for i in range(len(line)):
     result_list.append([ans, res, res2])
 
 print("original_ver: " + str(tot1/len(line)) + "add_neg_ver: " + str(tot2/len(line)))
+
+csv_write("result_file.csv", result_list)
