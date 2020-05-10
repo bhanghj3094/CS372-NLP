@@ -182,4 +182,4 @@ for i in range(len(line)):
 
 print("original_ver: " + str(tot1/len(line)) + "add_neg_ver: " + str(tot2/len(line)))
 
-csv_write("result_file.csv", result_list)
+csv_write("scoring_result.csv", result_list)
