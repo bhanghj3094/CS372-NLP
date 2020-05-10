@@ -32,7 +32,7 @@ for index, dataset in enumerate(datasets):
     for i in range(len(ratings)):
         file = open(dataset + "/" + str(i+1) + ".txt", "r")
         review = " ".join(file.read().strip().split("\n"))
-        reviews.append((review, ratings[i]))
+        reviews.append((review, float(ratings[i]) / 2))
         file.close()
 
     # Save into csv
