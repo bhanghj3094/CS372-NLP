@@ -1,5 +1,6 @@
 # python
 venv/
+*.pyc
 
 # dataset, and parsed data
 *.txt
@@ -7,6 +8,7 @@ venv/
 
 # env
 .vscode
+.idea
 
 # zip, tar
 *.zip
