@@ -9,7 +9,6 @@ class Reader():
 		self.file = ''
 
 	def get_folder(self,num):
-		
 		folders = os.listdir(self.directory)
 		dirs = []
 		for fold in folders:
@@ -55,4 +54,3 @@ rdr = Reader()
 print(rdr.open_csv(3,1))
 
 """
-
