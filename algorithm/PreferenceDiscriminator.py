@@ -65,10 +65,10 @@ def get_sentiment(word, tag):
     return [swn_synset.pos_score()**2, swn_synset.neg_score()**2, swn_synset.obj_score()**2]
 
 def get_score(review):
+    """ Calculate own score by tokenized words' negativity/positivity """
     # Initialize scores
     score = [0, 0]
     cnt = 0
-
 
     tagged_word_list = nltk.pos_tag(nltk.word_tokenize(review))
     for tagged_word in tagged_word_list:
@@ -91,6 +91,7 @@ def get_score(review):
         return [s*100/cnt for s in score]
 
 def get_score_with_neg_check(review):
+    """ Calculate own score by tokenized words' negativity/positivity and double negation check """
     # Initialize scores
     score = [0, 0]
     cnt = 0
@@ -124,18 +125,29 @@ def get_score_with_neg_check(review):
     else:
         return [s*100/cnt for s in score]
 
-
-
-
-
-
-
-#function that converts score list into 0~5 rate
 def rate_five(score):
+    """ function that converts score list into 0~5 rate """
     if score[0] == 0 and score[1] == 0:
         return 2.5
     else:
         return 5* score[0]/(score[0]+score[1])
+
+def csv_write(file_name, pairs_list):
+    """ function to make output file """
+    csv_file = open(file_name, "w")
+
+    # header of the table #
+    w = 'Rate, Score-1, Score-2'
+    csv_file.write(w)
+    csv_file.write('\n')
+
+    # print out 100 results #
+    for i in range(len(pairs_list)):
+        pair = pairs_list[i]
+        w = pair[0] + "," + pair[1] + "," + pair[2]
+        csv_file.write(w)
+        csv_file.write('\n')
+    csv_file.close()
 
 # Get input
 # For now, just get input manually
@@ -155,6 +167,8 @@ for line in rdr:
 
 f.close()
 
+result_list = list()
+
 tot1 = tot2 = 0
 
 for i in range(len(line)):
@@ -164,10 +178,6 @@ for i in range(len(line)):
     print("ours: " + res + " ours_neg: " + res2 + " real: " + ans)
     tot1 += abs(float(res) - float(ans))
     tot2 += abs(float(res2) - float(ans))
-
-
-
-
+    result_list.append([ans, res, res2])
 
 print("original_ver: " + str(tot1/len(line)) + "add_neg_ver: " + str(tot2/len(line)))
-    
