@@ -18,7 +18,7 @@ with open("scoring_result.csv", "r") as file:
         score2.append(float(row[2]))
 
 plt.subplot(1, 2, 1)
-scatter = plt.scatter(rate, score1, color="black")
+scatter = plt.scatter(rate, score1, color="black", s=2)
 
 plt.xlim(0, 6)
 plt.ylim(np.min(score1) - 1, np.max(score1) + 1)
@@ -28,7 +28,7 @@ plt.xlabel("Rate", labelpad=10)
 plt.ylabel("Review Score", labelpad=10)
 
 plt.subplot(1, 2, 2)
-scatter = plt.scatter(rate, score2, color="black")
+scatter = plt.scatter(rate, score2, color="black", s=2)
 
 plt.xlim(0, 6)
 plt.ylim(np.min(score2) - 1, np.max(score2) + 1)
