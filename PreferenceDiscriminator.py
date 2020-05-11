@@ -115,25 +115,55 @@ def get_score(review):
     # Initialize scores
     score = [0, 0]
     cnt = 0
-    words = nltk.sent_tokenize(review)
-    for sent in range(len(words)):
-        tagged_word_list = nltk.pos_tag(nltk.word_tokenize(words[sent]))
-        for tagged_word in tagged_word_list:
-            if not check_word(tagged_word[0]):
-                continue
-            if tagged_word[1].startswith('V'):
-                lemmatized_word = stemmer(tagged_word[0])
-                new_score = get_sentiment(lemmatized_word, tagged_word[1])
-            else:
-                new_score = get_sentiment(tagged_word[0], tagged_word[1])
+    sentences = review.split('.')
+    for sentence in sentences:
+        sentence_score = [0, 0]
+        words = nltk.sent_tokenize(sentence)
+        wordcount = 0
+        for word in words:
+            tagged_word_list = nltk.pos_tag(nltk.word_tokenize(word))
+            for tagged_word in tagged_word_list:
+                new_score = None
+                if not check_word(tagged_word[0]):
+                    continue
+                if tagged_word[1].startswith('V'):
+                    lemmatized_word = stemmer(tagged_word[0])
+                    new_score = get_sentiment(lemmatized_word, tagged_word[1])
+                else:
+                    new_score = get_sentiment(tagged_word[0], tagged_word[1])
+                if type(new_score) is list and (tagged_word[1].startswith('J') or tagged_word[1].startswith('R')):
+                    if new_score[0] > new_score[1]:
+                        new_score[0] *= 2
+                    else:
+                        new_score[1] *= 2
+                if not new_score is None:
+                    sentence_score[0] += new_score[0]
+                    sentence_score[1] += new_score[1]
+                    if sentence_score[0] != 0 or sentence_score[1] != 0:
+                        cnt += 1
+                        wordcount += 1
+        score[0] += sentence_score[0] / wordcount
+        score[1] += sentence_score[1] / wordcount
+    return [s * 100 / cnt for s in score] if cnt != 0 else [0,0]
+    # words = nltk.sent_tokenize(review)
+    # for sent in range(len(words)):
+    #     tagged_word_list = nltk.pos_tag(nltk.word_tokenize(words[sent]))
+    #     for tagged_word in tagged_word_list:
+    #         if not check_word(tagged_word[0]):
+    #             continue
+    #         if tagged_word[1].startswith('V'):
+    #             lemmatized_word = stemmer(tagged_word[0])
+    #             new_score = get_sentiment(lemmatized_word, tagged_word[1])
+    #         else:
+    #             new_score = get_sentiment(tagged_word[0], tagged_word[1])
 
-            if not new_score is None:
-                for i in range(2):
-                    if sent == (len(words) - 1) or sent == (len(words) - 2):
-                        score[i] *= 5
-                    score[i] += new_score[i]
-                if score[0] != 0 or score[1] != 0:
-                    cnt += 1
+    #         if not new_score is None:
+    #             for i in range(2):
+    #                 if sent == (len(words) - 1) or sent == (len(words) - 2):
+    #                     score[i] *= 5
+    #                 score[i] += new_score[i]
+    #             if score[0] != 0 or score[1] != 0:
+    #                 cnt += 1
     if cnt == 0:
         return [0, 0]
     else:
@@ -202,7 +232,7 @@ def csv_write(file_name, pairs_list):
 
 # Run
 rdr = Reader()
-lines = rdr.open_csv(2, 2)
+lines = rdr.open_csv(1, 2)
 
 result_list = list()
 
@@ -210,7 +240,7 @@ tot1 = tot2 = 0
 for line in lines:
     res = str(rate_five(get_score(line[0])))
     res2 = str(rate_five(get_score_with_neg_check(line[0])))
-    ans = line[1]
+    ans = line[1].strip("'")
     print("ours: " + res + " ours_neg: " + res2 + " real: " + ans)
     tot1 += abs(float(res) - float(ans))
     tot2 += abs(float(res2) - float(ans))
