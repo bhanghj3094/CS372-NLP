@@ -5,6 +5,7 @@ import csv
 rate = list()
 score1 = list()
 score2 = list()
+score3 = list()
 
 # rate = np.random.randint(1, 6, 20)
 # score = np.random.randint(0, 20, 20)
@@ -16,8 +17,9 @@ with open("scoring_result.csv", "r") as file:
         rate.append(float(row[0]))
         score1.append(float(row[1]))
         score2.append(float(row[2]))
+        score3.append(float(row[3]))
 
-plt.subplot(1, 2, 1)
+plt.subplot(1, 3, 1)
 scatter = plt.scatter(rate, score1, color="black", s=2)
 
 plt.xlim(0, 6)
@@ -27,13 +29,23 @@ plt.title("ScatterPlot of Rate and Review Score(Naive Ver.)", pad=10)
 plt.xlabel("Rate", labelpad=10)
 plt.ylabel("Review Score", labelpad=10)
 
-plt.subplot(1, 2, 2)
+plt.subplot(1, 3, 2)
 scatter = plt.scatter(rate, score2, color="black", s=2)
 
 plt.xlim(0, 6)
 plt.ylim(np.min(score2) - 1, np.max(score2) + 1)
 
 plt.title("ScatterPlot of Rate and Review Score(Double Negation Ver.)", pad=10)
+plt.xlabel("Rate", labelpad=10)
+plt.ylabel("Review Score", labelpad=10)
+
+plt.subplot(1, 3, 3)
+scatter = plt.scatter(rate, score3, color="black", s=2)
+
+plt.xlim(0, 6)
+plt.ylim(np.min(score3) - 1, np.max(score3) + 1)
+
+plt.title("ScatterPlot of Rate and Review Score(Sentence Average Ver.)", pad=10)
 plt.xlabel("Rate", labelpad=10)
 plt.ylabel("Review Score", labelpad=10)
 
