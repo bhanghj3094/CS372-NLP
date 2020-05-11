@@ -228,7 +228,7 @@ def csv_write(file_name, pairs_list):
     # print out 100 results #
     for i in range(len(pairs_list)):
         pair = pairs_list[i]
-        w = pair[0] + "," + pair[1] + "," + pair[2]
+        w = pair[0] + "," + pair[1] + "," + pair[2] + "," + pair[3]
         csv_file.write(w)
         csv_file.write("\n")
     csv_file.close()
@@ -240,18 +240,18 @@ lines = rdr.open_csv(1, 1)
 
 result_list = list()
 
-tot1 = tot2 = 0
+tot1 = tot2 = tot3 = 0
 for line in lines:
     res = str(rate_five(get_score(line[0])))
-    res2 = str(rate_five(get_score_by_sentence_average(line[0])))
+    res2 = str(rate_five(get_score_with_neg_check(line[0])))
+    res3 = str(rate_five(get_score_by_sentence_average(line[0])))
     ans = line[1].strip("'")
     print("ours: " + res + " ours_neg: " + res2 + " real: " + ans)
     tot1 += abs(float(res) - float(ans))
     tot2 += abs(float(res2) - float(ans))
-    result_list.append([ans, res, res2])
+    tot3 += abs(float(res3) - float(ans))
+    result_list.append([ans, res, res2, res3])
 
-print(
-    "original_ver: " + str(tot1 / len(lines)) + "add_neg_ver: " + str(tot2 / len(lines))
-)
+print("original_ver: " + str(tot1 / len(lines)) + "\t" + "add_neg_ver: " + str(tot2 / len(lines)) + "\t" + "sent_avg_ver: " + str(tot3 / len(lines)))
 
 csv_write("scoring_result.csv", result_list)
