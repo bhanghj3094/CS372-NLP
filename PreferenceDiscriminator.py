@@ -64,9 +64,18 @@ def tag_convert(tag):
 
 ######### Main Functions #########
 
+def additional_sentiment(word, tag):
+    """ Additional sentiment calculator (You can add more pattern) """
+    if word == "great":
+        return [1,0,0]
+    elif word == "comfortable" or word == "comfy":
+        return [0.5,0,0]
+    return None
 
 def get_sentiment(word, tag):
     """ returns (pos, neg, obj) score of input word. Returns None if error """
+    if not additional_sentiment(word, tag) == None:
+        return additional_sentiment(word, tag)
     wn_tag = tag_convert(tag)
     if wn_tag is None:
         return None
@@ -130,7 +139,7 @@ def get_score(review):
             if not new_score is None:
                 for i in range(2):
                     if sent == (len(words) - 1) or sent == (len(words) - 2):
-                        score[i] *= 5
+                        new_score[i] *= 5
                     score[i] += new_score[i]
                 if score[0] != 0 or score[1] != 0:
                     cnt += 1
@@ -202,7 +211,7 @@ def csv_write(file_name, pairs_list):
 
 # Run
 rdr = Reader()
-lines = rdr.open_csv(2, 2)
+lines = rdr.open_csv(1, 0)
 
 result_list = list()
 
