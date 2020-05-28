@@ -18,12 +18,9 @@ Please refer to the scheme [here](./dataset).
 
 ### Methodology/Algorithm
 
-#### 1. Pos-Neg Scoring
-Using SentiWordnet, scores the rate of positive and negative of each words in sentence.
+Refer to the following documents:
 
-### Evaluation
-
-### Related Works
+* [Interim Report](./document/CS372_project_interim_23.pdf)
 
 ## Development
 
@@ -57,8 +54,10 @@ Refer to [commit messages in the repository](https://github.com/bhanghj3094/CS37
 
 ## Collaborators
 
+> Sorted in Hangeul (Korean alphabetical) order. 
+
+* [Seung Ho, Kim](https://github.com/winningarc)
 * [Jae Hyeon, Myeong](https://github.com/mjhbest)
 * [Hyoung Jo, Bhang](https://github.com/bhanghj3094)
-* [Da Eun, Choi](https://github.com/CheddarChoi)
 * [Jin Won, Lee](https://github.com/grape-tasting-acid)
-* [Seung Ho, Kim](https://github.com/winningarc)
+* [Da Eun, Choi](https://github.com/CheddarChoi)

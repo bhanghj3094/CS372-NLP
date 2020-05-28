@@ -1,4 +1,4 @@
-from dataset.CsvReader import Reader
+from dataset.csvReader import Reader
 from algorithm.CalculateScore import *
 
 
