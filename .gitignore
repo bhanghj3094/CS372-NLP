@@ -5,6 +5,7 @@ venv/
 # dataset, and parsed data
 *.txt
 *.csv
+*csv
 
 # env
 .vscode
