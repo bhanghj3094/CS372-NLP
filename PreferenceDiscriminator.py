@@ -184,49 +184,51 @@ def get_score_with_neg_check(review):
 
 
 def rate_five(score):
-    """ function that converts score list into 0~5 rate """
+    """ Converts score to 0 ~ 5. """
     # if score[0] == 0 and score[1] == 0:
     #     return 2.5
     # else:
     #     return 5* score[0]/(score[0]+score[1])
-    return score[0]-score[1]
+    return score[0] - score[1]
 
-def csv_write(file_name, pairs_list):
-    """ function to make output file """
+
+def csv_write(file_name, result):
     csv_file = open(file_name, "w")
+    
+    # header
+    csv_file.write("Rate, Score-1, Score-2\n")
 
-    # header of the table #
-    w = "Rate, Score-1, Score-2"
-    csv_file.write(w)
-    csv_file.write("\n")
-
-    # print out 100 results #
-    for i in range(len(pairs_list)):
-        pair = pairs_list[i]
-        w = pair[0] + "," + pair[1] + "," + pair[2]
-        csv_file.write(w)
-        csv_file.write("\n")
+    for entry in result:
+        entry_to_string = ", ".join([str(e) for e in entry])
+        csv_file.write(entry_to_string + "\n")
     csv_file.close()
 
 
-# Run
-rdr = Reader()
-lines = rdr.open_csv(1, 0)
+# open corpus
+reader = Reader()
+lines = reader.open_csv(1, 0)
 
-result_list = list()
+# result
+result = []
+accuracy_naive = 0
+accuracy_neg = 0
 
-tot1 = tot2 = 0
 for line in lines:
-    res = str(rate_five(get_score(line[0])))
-    res2 = str(rate_five(get_score_with_neg_check(line[0])))
-    ans = line[1]
-    print("ours: " + res + " ours_neg: " + res2 + " real: " + ans)
-    tot1 += abs(float(res) - float(ans))
-    tot2 += abs(float(res2) - float(ans))
-    result_list.append([ans, res, res2])
+    review = line[0]
+    answer = float(line[1])
 
-print(
-    "original_ver: " + str(tot1 / len(lines)) + "add_neg_ver: " + str(tot2 / len(lines))
-)
+    # calculate score
+    score_naive = rate_five(get_score(review))
+    score_neg = rate_five(get_score_with_neg_check(review))
+    print("score_naive: %7.2f, score_neg: %7.2f, answer: %5.2f" % (score_naive, score_neg, answer))
+    
+    # add difference with answer
+    accuracy_naive += abs(score_naive - answer)
+    accuracy_neg += abs(score_neg - answer)
+    result.append([answer, score_naive, score_neg])
 
-csv_write("scoring_result.csv", result_list)
+# print overall accuracy
+print("accuracy_naive: %6.3f, accuracy_neg: %6.3f" % (accuracy_naive / len(lines), accuracy_neg / len(lines)))
+
+# save
+csv_write("scoring_result.csv", result)
