@@ -17,3 +17,5 @@ venv/
 # Others
 .DS_store
 .cache
+.docx
+.doc
