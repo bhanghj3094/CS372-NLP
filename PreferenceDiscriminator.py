@@ -90,97 +90,55 @@ def get_sentiment(word, tag):
         swn_synset.obj_score() ** 2,
     ]
 
-# original version without any additional methods
-def get_score_org(review):
-    """ Calculate own score by tokenized words' negativity/positivity """
-    # Initialize scores
+
+def get_score(review, mode=[]):
+    """ Calculate positivity/negativity of review. 
+
+    Args:
+        review (String): text of review. 
+        mode (List): list of modes to apply. 
+            'sent' - additional scores to sentences.
+            'neg' - check double negation.
+    
+    Returns:
+        score (Tuple): [positivity_score, negativity_score]
+    """
+    count = 0  # number of words with score. 
+    neg_check = 0  # variable to hold former word's negativity.
     score = [0, 0]
-    cnt = 0
 
-    tagged_word_list = nltk.pos_tag(nltk.word_tokenize(review))
-    for tagged_word in tagged_word_list:
-        if not check_word(tagged_word[0]):
-            continue
-        if tagged_word[1].startswith('V'):
-            lemmatized_word = stemmer(tagged_word[0])
-            new_score = get_sentiment(lemmatized_word, tagged_word[1])
-        else:
-            new_score = get_sentiment(tagged_word[0], tagged_word[1])
-
-        if not new_score is None:
-            for i in range(2):
-                score[i] += new_score[i]
-            if score[0] != 0 or score[1] != 0:
-                cnt += 1
-    if cnt == 0:
-        return [0, 0]
-    else:
-        return [s * 100 / cnt for s in score]
-
-
-# *5 scores in last two stc.
-def get_score(review):
-    """ Calculate own score by tokenized words' negativity/positivity """
-    # Initialize scores
-    score = [0, 0]
-    cnt = 0
-    words = nltk.sent_tokenize(review)
-    for sent in range(len(words)):
-        tagged_word_list = nltk.pos_tag(nltk.word_tokenize(words[sent]))
-        for tagged_word in tagged_word_list:
-            if not check_word(tagged_word[0]):
+    tagged_review = [
+        nltk.pos_tag(nltk.word_tokenize(sent))
+        for sent in nltk.sent_tokenize(review)
+    ]
+    for index, sentence in enumerate(tagged_review):
+        for word, tag in sentence:
+            if not check_word(word):
                 continue
-            if tagged_word[1].startswith('V'):
-                lemmatized_word = stemmer(tagged_word[0])
-                new_score = get_sentiment(lemmatized_word, tagged_word[1])
-            else:
-                new_score = get_sentiment(tagged_word[0], tagged_word[1])
+            # if verb, lemmatize.
+            lemmatized_word = stemmer(word) if tag.startswith('v') else word
+            new_score = get_sentiment(lemmatized_word, tag)
 
-            if not new_score is None:
-                for i in range(2):
-                    if sent == (len(words) - 1) or sent == (len(words) - 2):
-                        new_score[i] *= 5
-                    score[i] += new_score[i]
-                if score[0] != 0 or score[1] != 0:
-                    cnt += 1
-    if cnt == 0:
-        return [0, 0]
-    else:
-        return [s * 100 / cnt for s in score]
+            # new_score is None on error. 
+            if new_score:
+                count += 1  # found score
+                new_pos, new_neg, new_obj = new_score
+                # sentence check
+                is_conclusing = (index == len(tagged_review) - 1) or \
+                                (index == len(tagged_review) - 2)
+                if 'sent' in mode and is_conclusing:
+                    new_pos *= 5
+                    new_neg *= 5
+                # negativity check
+                if 'neg' in mode and neg_check == 1:
+                    # reverse postivity and negativity. 
+                    new_pos, new_neg = new_neg, new_pos
+                neg_check = 1 if new_pos < new_neg else 0
+                # add score
+                score[0] += new_pos
+                score[1] += new_neg
 
-
-def get_score_with_neg_check(review):
-    """ Calculate own score by tokenized words' negativity/positivity and double negation check """
-    # Initialize scores
-    score = [0, 0]
-    cnt = 0
-    neg_check = 0
-    tagged_word_list = nltk.pos_tag(nltk.word_tokenize(review))
-    for tagged_word in tagged_word_list:
-        if not check_word(tagged_word[0]):
-            continue
-        if tagged_word[1].startswith('V'):
-            lemmatized_word = stemmer(tagged_word[0])
-            new_score = get_sentiment(lemmatized_word, tagged_word[1])
-        else:
-            new_score = get_sentiment(tagged_word[0], tagged_word[1])
-
-        if not new_score is None:
-            if neg_check == 1:
-                new_score[0], new_score[1] = new_score[1], new_score[0]
-            for i in range(2):
-                score[i] += new_score[i]
-            if score[0] != 0 or score[1] != 0:
-                cnt += 1
-            if score[0] < score[1]:
-                neg_check = 1
-            elif score[1] >= score[0]:
-                neg_check = 0
-
-    if cnt == 0:
-        return [0, 0]
-    else:
-        return [s * 100 / cnt for s in score]
+    return [s * 100 / count for s in score] if count != 0 else score
 
 
 def rate_five(score):
@@ -218,8 +176,8 @@ for line in lines:
     answer = float(line[1])
 
     # calculate score
-    score_naive = rate_five(get_score(review))
-    score_neg = rate_five(get_score_with_neg_check(review))
+    score_naive = rate_five(get_score(review, ['sent']))
+    score_neg = rate_five(get_score(review, ['neg']))
     print("score_naive: %7.2f, score_neg: %7.2f, answer: %5.2f" % (score_naive, score_neg, answer))
     
     # add difference with answer
