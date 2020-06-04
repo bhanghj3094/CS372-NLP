@@ -3,7 +3,6 @@ venv/
 *.pyc
 
 # dataset, and parsed data
-*.txt
 *.csv
 *csv
 
