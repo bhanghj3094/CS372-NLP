@@ -5,6 +5,7 @@ venv/
 # dataset, and parsed data
 *.txt
 !vader_lexicon.txt
+!intensifier.txt
 *.csv
 *csv
 
