@@ -1,5 +1,5 @@
 import nltk
-from .SentimentDiscriminator import *
+from SentimentDiscriminator import *
 
 
 def rate_five(score):
@@ -60,3 +60,6 @@ def get_score(review, mode=[]):
 
     score = [s * 100 / count for s in score] if count != 0 else score
     return rate_five(score)
+
+# Initialization : Get vader score from txt file
+init_vader()

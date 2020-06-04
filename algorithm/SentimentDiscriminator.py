@@ -1,4 +1,4 @@
-import nltk
+import nltk, os.path
 from nltk.corpus import wordnet as wn
 from nltk.corpus import sentiwordnet as swn
 from nltk.stem.lancaster import LancasterStemmer
@@ -63,6 +63,18 @@ def tag_convert(tag):
 
 ######### Main Functions #########
 
+vader_score = dict()
+
+def init_vader():
+    """ Initializing vader score """
+    f = open(os.path.dirname(__file__) + "/../dataset/vader_lexicon.txt", "r")
+    while True:
+        line = f.readline()
+        if not line: break
+        token, score, _, _ = line.strip().split('\t')     # list of [TOKEN, MEAN-SENTIMENT-RATING, STANDARD DEVIATION, RAW-HUMAN-SENTIMENT-RATINGS]
+        vader_score[token] = score
+
+
 def additional_sentiment(word, tag):
     """ Additional sentiment calculator (You can add more pattern) """
     if word == "great":
@@ -89,3 +101,10 @@ def get_sentiment(word, tag):
         swn_synset.neg_score() ** 2,
         swn_synset.obj_score() ** 2,
     ]
+
+def get_vader_score(word):
+    """ Return vader score. If no score exist, return None """
+    try:
+        return vader_score[word]
+    except:
+        return None
