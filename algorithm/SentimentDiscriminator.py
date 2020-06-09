@@ -1,24 +1,9 @@
 import nltk, os.path
 from nltk.corpus import wordnet as wn
 from nltk.corpus import sentiwordnet as swn
-from nltk.stem.lancaster import LancasterStemmer
 
 
 ######### Helper Functions ########
-
-def additional_stemmer(word):
-    """ Additional stemmer (You can add more pattern) """
-    if word == "n't":
-        return "not"
-    elif word.endswith("n't"):
-        return word.split("n't")[0] + " not"
-    return word
-
-
-def stemmer(word):
-    """ Stemmer for use """
-    word = additional_stemmer(word)
-    return LancasterStemmer().stem(word)
 
 
 def synset_name(synset):

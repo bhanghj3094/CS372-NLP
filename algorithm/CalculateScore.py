@@ -1,8 +1,22 @@
 import nltk
 from SentimentDiscriminator import *
 from autocorrect import Speller
+from nltk.stem import WordNetLemmatizer
 
 spell = Speller(lang='en')
+lemmatizer = WordNetLemmatizer().lemmatize
+
+def tokenizer(sent):
+    """ Sentence tokenizer with removing - in words """
+    tokenized_list = nltk.tokenize.word_tokenize(sent)
+    for i in range(len(tokenized_list)):
+        if "-" in tokenized_list[i]:
+            seperated_words = tokenized_list[i].split("-")
+            tokenized_list.pop(i)
+            seperated_words.reverse()
+            for word in seperated_words:
+                tokenized_list.insert(i, word)
+    return tokenized_list
 
 intensifiers = [word.strip() for word in open('intensifier.txt', 'r')]
 stop_words = nltk.corpus.stopwords.words('english')
@@ -61,7 +75,7 @@ def get_score(review, mode=[]):
                 has_conjunction = True
             word = spell(word.lower())
             if word not in stop_words:
-                word_list.append(Word(word, pos, word in intensifiers, get_vader_score(word) if get_vader_score(word) else stemmer(word)))
+                word_list.append(Word(word, pos, word in intensifiers, get_vader_score(word) if get_vader_score(word) else get_vader_score(lemmatizer(word))))
         tagged_review.append(Sentence(word_list, i == 0, i == len(sent_tokens) - 1, has_conjunction, sent_token.count('!') > 1))
         
     # tagged_review = [
