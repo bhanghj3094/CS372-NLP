@@ -104,7 +104,4 @@ def get_sentiment(word, tag):
 
 def get_vader_score(word):
     """ Return vader score. If no score exist, return None """
-    try:
-        return vader_score[word]
-    except:
-        return None
+    return vader_score.get(word, None)
