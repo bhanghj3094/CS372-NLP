@@ -70,7 +70,7 @@ def get_score(review, mode=[]):
     for i, sent_token in enumerate(sent_tokens):
         word_list = []
         has_conjunction = False
-        for word, pos in nltk.pos_tag(nltk.tokenize.word_tokenize(sent_token)):
+        for word, pos in nltk.pos_tag(tokenizer(sent_token)):
             if pos in ['CC','IN']:
                 has_conjunction = True
             word = spell(word.lower())
