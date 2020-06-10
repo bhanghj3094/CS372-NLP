@@ -69,22 +69,34 @@ def get_sentiment(word, tag):
 
 ######### Main Functions #########
 vader_score = defaultdict(int)
-
+special_words = []
 
 def init_vader():
     """ Initializing vader score """
-    f = open(os.path.dirname(__file__) + "/../dataset/vader_lexicon.txt", "r")
+    f = open("algorithm/vader_lexicon.txt", "r")
     while True:
         line = f.readline()
         if not line: break
         token, score, _, _ = line.strip().split('\t')     # list of [TOKEN, MEAN-SENTIMENT-RATING, STANDARD DEVIATION, RAW-HUMAN-SENTIMENT-RATINGS]
         vader_score[token] = score
+    f.close()
+    f = open("algorithm/special_words.txt", "r")
+    while True:
+        line = f.readline()
+        if not line: break
+        token, score, _, _ = line.strip().split('\t')     # list of [TOKEN, MEAN-SENTIMENT-RATING, STANDARD DEVIATION, RAW-HUMAN-SENTIMENT-RATINGS]
+        special_words.append((token,score))
+    f.close()
 
 
 def get_vader_score(word):
     """ Return vader score. """
     return float(vader_score[word.lower()])
 
-
-# Initialization : Get vader score from txt file
-init_vader()
+def get_special_score(sent):
+    """ Return special score. """
+    result = 0
+    for special_word in special_words:
+        if special_word[0] in sent:
+            result += float(special_word[1])
+    return result

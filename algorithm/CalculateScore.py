@@ -24,12 +24,13 @@ class Word():
 
 
 class Sentence():
-    def __init__(self, words, is_first, is_last, has_conjunction, has_multiple_exclamation):
+    def __init__(self, words, is_first, is_last, has_conjunction, has_multiple_exclamation, special_score):
         self.words = words
         self.is_first = is_first
         self.is_last = is_last
         self.has_conjunction = has_conjunction
         self.has_multiple_exclamation = has_multiple_exclamation
+        self.special_score = special_score
 
 
 def tokenizer(sent):
@@ -89,6 +90,9 @@ def get_score(review, mode=[]):
     for idx, sentence in enumerate(tokenized_sentences):
         words = []
         has_conjunction = False
+        # Find special score
+        special_score = get_special_score(sentence)
+
         for word, pos in tokenizer(sentence):
             if pos in ['CC','IN'] and word not in stopwords:
                 has_conjunction = True
@@ -98,7 +102,7 @@ def get_score(review, mode=[]):
             new_word = Word(word, pos, spelled_word in intensifiers, spelled_word in neutralizers, vader_score)
             words.append(new_word)
         is_first, is_last = idx == 0, idx == len(tokenized_sentences) - 1
-        new_sentence = Sentence(words, is_first, is_last, has_conjunction, sentence.count('!') > 1)
+        new_sentence = Sentence(words, is_first, is_last, has_conjunction, sentence.count('!') > 1, special_score)
         sentences.append(new_sentence)
 
     sentence_scores = []  # sentence score, importance
@@ -139,7 +143,7 @@ def get_score(review, mode=[]):
                 not_check = True if word.text in ['not','no'] else False
             word_scores.append([word.text, word.is_intensifier, word_score])
         print("word_scores:", word_scores)
-        word_scores = [score for word, _, _, score in word_scores]
+        word_scores = [score for word, _, score in word_scores]
 
         # Pure sentence score
         sentence_score = sum(word_scores) / len(word_scores) if len(word_scores) != 0 else 0
