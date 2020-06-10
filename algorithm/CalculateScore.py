@@ -2,6 +2,7 @@ import nltk
 from nltk.stem import WordNetLemmatizer
 from autocorrect import Speller
 from .SentimentDiscriminator import *
+from pprint import pprint
 
 
 # Global variables
@@ -90,6 +91,7 @@ def get_score(review, mode=[]):
                 has_conjunction = True
             word = speller(word)
             vader_score = get_vader_score(word) if get_vader_score(word) else get_vader_score(lemmatizer(word))
+            if vader_score == 0: continue
             # print([word, pos, word in intensifiers, vader_score])
             new_word = Word(word, pos, word in intensifiers, vader_score)
             words.append(new_word)
@@ -100,14 +102,13 @@ def get_score(review, mode=[]):
 
     sentence_scores = []  # sentence score, importance
     for sentence in sentences:
-        # Iterate words
-        valid_word_count = 0
+        # Check variables
         intensifier_check = False
         simple_negative_check = False
         not_check = False
-
-        # Initialize sentence score
-        sentence_score = 0
+        
+        # Iterate words
+        word_scores = []
         for word in sentence.words:
             word_score = word.vader_score
             if 'intensifier' in mode:
@@ -127,13 +128,12 @@ def get_score(review, mode=[]):
                 if not_check:
                     word_score *= -1
                 not_check = True if word == 'not' else False
-            # Count words with score
-            if word_score != 0: valid_word_count += 1
-            sentence_score += word_score
+            word_scores.append((word.text, word_score))
+        word_scores = [score for word, score in word_scores]
         
         # Pure sentence score
-        sentence_score = sentence_score / valid_word_count if valid_word_count != 0 else 0
-        sentence_importance = valid_word_count
+        sentence_score = sum(word_scores) / len(word_scores) if len(word_scores) != 0 else 0
+        sentence_importance = len(word_scores)
 
         if 'is_first' in mode and sentence.is_first:
             sentence_importance *= 2
@@ -142,13 +142,13 @@ def get_score(review, mode=[]):
         if 'conjunction' in mode and sentence.has_conjunction:
             sentence_importance *= 2
         if 'exclamation' in mode and sentence.has_multiple_exclamation:
-            sentence_importance *= 2        
+            sentence_importance *= 2
         sentence_scores.append((sentence_score, sentence_importance))
-    
+
     # Calculate overall score
     total_importance = sum([impt for _, impt in sentence_scores])
     # Nullity check
     if total_importance == 0: 
         return 0
     total_score = sum([ score * impt / total_importance for score, impt in sentence_scores])
-    return total_score
+    return total_score + 2.5
