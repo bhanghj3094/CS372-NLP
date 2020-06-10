@@ -119,15 +119,17 @@ def get_score(review, mode=[]):
                 word_score = 0
             # Negativity check
             if 'simple_neg' in mode:
-                if simple_negative_check:
+                if simple_negative_check and not not_check:
                     word_score *= -1
                 simple_negative_check = True if word_score < 0 else False
             if 'not' in mode:
                 if not_check:
                     word_score *= -1
-                    word_scores[word_idx-1] *= -1
-                not_check = True if word == 'not' else False
-            word_scores.append((word.text, word.is_intensifier, word_score))
+                    word_scores[word_idx-1][2] *= -1
+                    if word_score == 0:
+                        word_scores[word_idx-1][2] = 0
+                not_check = True if word.text in ['not','no'] else False
+            word_scores.append([word.text, word.is_intensifier, word_score])
         print("word_scores:", word_scores)
         word_scores = [score for word, _, score in word_scores]
 
