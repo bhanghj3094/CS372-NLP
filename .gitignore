@@ -6,6 +6,7 @@ venv/
 *.txt
 !vader_lexicon.txt
 !intensifier.txt
+!neutralizer.txt
 *.csv
 *csv
 

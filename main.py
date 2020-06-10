@@ -22,9 +22,9 @@ def main():
     # result
     result = []
     accuracy_naive = 0
-    accuracy_neg = 0
+    accuracy_mode = 0
 
-    for idx, line in enumerate(lines[5:10]):
+    for idx, line in enumerate(lines):
         review = line[0]
         answer = float(line[1])
         if answer != 5: continue
@@ -33,6 +33,7 @@ def main():
         # Possible modes
         mode = [
             'intensifier',
+            'neutralizer',
             'uppercase',
             'threshold',
             'is_first',
@@ -50,11 +51,11 @@ def main():
 
         # add difference with answer
         accuracy_naive += abs(score_naive - answer)
-        accuracy_neg += abs(score_mode - answer)
+        accuracy_mode += abs(score_mode - answer)
         result.append([answer, score_naive, score_mode])
 
     # print overall accuracy
-    print("accuracy_naive: %6.3f, accuracy_neg: %6.3f" % (accuracy_naive / len(lines), accuracy_neg / len(lines)))
+    print("accuracy_naive: %6.3f, accuracy_mode: %6.3f" % (accuracy_naive, accuracy_mode))
 
     # save
     csv_write("scoring_result.csv", result)

@@ -9,14 +9,16 @@ from pprint import pprint
 speller = Speller(lang='en')
 lemmatizer = WordNetLemmatizer().lemmatize
 intensifiers = [word.strip() for word in open('algorithm/intensifier.txt', 'r') if word.strip().isalpha()]
+neutralizers = [word.strip() for word in open('algorithm/neutralizer.txt', 'r') if word.strip().isalpha()]
 stopwords = nltk.corpus.stopwords.words('english')
 
 
 class Word():
-    def __init__(self, text, pos_tag, is_intensifier, vader_score):
+    def __init__(self, text, pos_tag, is_intensifier, is_neutralizer, vader_score):
         self.text = text
         self.pos_tag = pos_tag
         self.is_intensifier = is_intensifier
+        self.is_neutralizer = is_neutralizer
         self.is_uppercase = text.isupper()
         self.vader_score = vader_score
 
@@ -63,6 +65,7 @@ def get_score(review, mode=[]):
         mode (List): list of modes to apply. 
             # words
             'intensifier' - give weight on word behind intensifiers
+            'neutralizer' - lower weight on word behind neutralizers
             'uppercase' - check if word is upper
             'threshold' - ignore small scores
             # sentences
@@ -92,7 +95,7 @@ def get_score(review, mode=[]):
             spelled_word = speller(word.lower())
             vader_score = get_vader_score(spelled_word) if get_vader_score(spelled_word) else get_vader_score(lemmatizer(spelled_word))
             # if vader_score == 0: continue
-            new_word = Word(word, pos, spelled_word in intensifiers, vader_score)
+            new_word = Word(word, pos, spelled_word in intensifiers, spelled_word in neutralizers, vader_score)
             words.append(new_word)
         is_first, is_last = idx == 0, idx == len(tokenized_sentences) - 1
         new_sentence = Sentence(words, is_first, is_last, has_conjunction, sentence.count('!') > 1)
@@ -102,6 +105,7 @@ def get_score(review, mode=[]):
     for sentence in sentences:
         # Check variables
         intensifier_check = False
+        neutralizer_check = False
         simple_negative_check = False
         not_check = False
         
@@ -113,6 +117,10 @@ def get_score(review, mode=[]):
                 if intensifier_check:
                     word_score *= 2
                 intensifier_check = True if word.is_intensifier else False
+            if 'neutralizer' in mode:
+                if neutralizer_check:
+                    word_score /= 2
+                neutralizer_check = True if word.is_neutralizer else False
             if 'uppercase' in mode and word.is_uppercase:
                 word_score *= 2
             if 'threshold' in mode and abs(word.vader_score) < 0.3:
@@ -126,10 +134,10 @@ def get_score(review, mode=[]):
                 if not_check:
                     word_score *= -1
                     word_scores[word_idx-1] *= -1
-                not_check = True if word == 'not' else False
-            word_scores.append((word.text, word.is_intensifier, word_score))
+                not_check = True if word == ['not', 'no'] else False
+            word_scores.append((word.text, word.is_intensifier, word.is_neutralizer, word_score))
         print("word_scores:", word_scores)
-        word_scores = [score for word, _, score in word_scores]
+        word_scores = [score for word, _, _, score in word_scores]
 
         # Pure sentence score
         sentence_score = sum(word_scores) / len(word_scores) if len(word_scores) != 0 else 0
