@@ -4,8 +4,6 @@ from nltk.corpus import sentiwordnet as swn
 
 
 ######### Helper Functions ########
-
-
 def synset_name(synset):
     """ function to change synset into string """
     return synset.name().split(".")[0]
@@ -89,4 +87,4 @@ def get_sentiment(word, tag):
 
 def get_vader_score(word):
     """ Return vader score. If no score exist, return None """
-    return vader_score.get(word, None)
+    return vader_score.get(word.lower(), None)

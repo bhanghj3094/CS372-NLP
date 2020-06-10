@@ -1,33 +1,24 @@
 import nltk
-from SentimentDiscriminator import *
-from autocorrect import Speller
 from nltk.stem import WordNetLemmatizer
+from autocorrect import Speller
+from .SentimentDiscriminator import *
 
-spell = Speller(lang='en')
+
+# Global variables
+speller = Speller(lang='en')
 lemmatizer = WordNetLemmatizer().lemmatize
+intensifiers = [word.strip() for word in open('algorithm/intensifier.txt', 'r')]
+stopwords = nltk.corpus.stopwords.words('english')
 
-def tokenizer(sent):
-    """ Sentence tokenizer with removing - in words """
-    tokenized_list = nltk.tokenize.word_tokenize(sent)
-    for i in range(len(tokenized_list)):
-        if "-" in tokenized_list[i]:
-            seperated_words = tokenized_list[i].split("-")
-            tokenized_list.pop(i)
-            seperated_words.reverse()
-            for word in seperated_words:
-                tokenized_list.insert(i, word)
-    return tokenized_list
-
-intensifiers = [word.strip() for word in open('intensifier.txt', 'r')]
-stop_words = nltk.corpus.stopwords.words('english')
 
 class Word():
     def __init__(self, text, pos_tag, is_intensifier, vader_score):
         self.text = text
         self.pos_tag = pos_tag
         self.is_intensifier = is_intensifier
-        self.has_conjunction = text.isupper()
+        self.is_uppercase = text.isupper()
         self.vader_score = vader_score
+
 
 class Sentence():
     def __init__(self, words, is_first, is_last, has_conjunction, has_multiple_exclamation):
@@ -36,16 +27,28 @@ class Sentence():
         self.is_last = is_last
         self.has_conjunction = has_conjunction
         self.has_multiple_exclamation = has_multiple_exclamation
-  
-print(word_tokens) 
-print(filtered_sentence)
+
+
+def tokenizer(sent):
+    """Sentence tokenizer with removing - in words """
+    tokenized_list = nltk.word_tokenize(sent)
+    for i, word in enumerate(tokenized_list):
+        if "-" in word:
+            seperated_words = word.split("-")
+        elif word.endswith("n't"):
+            seperated_words = [word[:-3], 'not']
+        else:
+            continue
+
+        # if modified
+        tokenized_list.pop(i)
+        for word in seperated_words[::-1]:
+            tokenized_list.insert(i, word)
+    return nltk.pos_tag(tokenized_list)
+
 
 def rate_five(score):
     """ Converts score to 0 ~ 5. """
-    # if score[0] == 0 and score[1] == 0:
-    #     return 2.5
-    # else:
-    #     return 5* score[0]/(score[0]+score[1])
     return score[0] - score[1]
 
 
@@ -65,19 +68,23 @@ def get_score(review, mode=[]):
     neg_check = 0  # variable to hold former word's negativity.
     score = [0, 0]
 
-    tagged_review = []
-    sent_tokens = nltk.sent_tokenize(review)
-    for i, sent_token in enumerate(sent_tokens):
+    sentences = []
+    tokenized_sentences = nltk.sent_tokenize(review)
+    for idx, sentence in enumerate(tokenized_sentences):
         word_list = []
         has_conjunction = False
-        for word, pos in nltk.pos_tag(tokenizer(sent_token)):
-            if pos in ['CC','IN']:
+        for word, pos in tokenizer(sentence):
+            if pos in ['CC','IN'] and word not in stopwords:
                 has_conjunction = True
-            word = spell(word.lower())
-            if word not in stop_words:
-                word_list.append(Word(word, pos, word in intensifiers, get_vader_score(word) if get_vader_score(word) else get_vader_score(lemmatizer(word))))
-        tagged_review.append(Sentence(word_list, i == 0, i == len(sent_tokens) - 1, has_conjunction, sent_token.count('!') > 1))
-        
+            word = speller(word)
+            vader_score = get_vader_score(word) if get_vader_score(word) else get_vader_score(lemmatizer(word))
+            new_word = Word(word, pos, word in intensifiers, vader_score)
+            word_list.append(new_word)
+        is_first, is_last = idx == 0, idx == len(tokenized_sentences) - 1
+        new_sentence = Sentence(word_list, is_first, is_last, has_conjunction, sentence.count('!') > 1)
+        sentences.append(new_sentence)
+
+
     # tagged_review = [
     #     nltk.pos_tag(nltk.word_tokenize(sent))
     #     for sent in nltk.sent_tokenize(review)
@@ -111,6 +118,7 @@ def get_score(review, mode=[]):
 
     # score = [s * 100 / count for s in score] if count != 0 else score
     # return rate_five(score)
+    return 0
 
 # Initialization : Get vader score from txt file
 init_vader()
