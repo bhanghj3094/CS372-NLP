@@ -98,7 +98,6 @@ def get_score(review, mode=[]):
                 has_conjunction = True
             spelled_word = speller(word.lower())
             vader_score = get_vader_score(spelled_word) if get_vader_score(spelled_word) else get_vader_score(lemmatizer(spelled_word))
-            # if vader_score == 0: continue
             new_word = Word(word, pos, spelled_word in intensifiers, spelled_word in neutralizers, vader_score)
             words.append(new_word)
         is_first, is_last = idx == 0, idx == len(tokenized_sentences) - 1
@@ -115,6 +114,7 @@ def get_score(review, mode=[]):
         
         # Iterate words
         word_scores = []
+        valid_word_count = 0
         for word_idx, word in enumerate(sentence.words):
             word_score = word.vader_score
             if 'intensifier' in mode:
@@ -141,13 +141,14 @@ def get_score(review, mode=[]):
                     if word_score == 0:
                         word_scores[word_idx-1][2] = 0
                 not_check = True if word.text in ['not','no'] else False
+            if word_score != 0: valid_word_count += 1
             word_scores.append([word.text, word.is_intensifier, word_score])
         print("word_scores:", word_scores)
         word_scores = [score for word, _, score in word_scores]
 
         # Pure sentence score
-        sentence_score = sum(word_scores) / len(word_scores) if len(word_scores) != 0 else 0
-        sentence_importance = len(word_scores)
+        sentence_score = sum(word_scores) / valid_word_count if valid_word_count != 0 else 0
+        sentence_importance = valid_word_count
 
         if 'is_first' in mode and sentence.is_first:
             sentence_importance *= 2
@@ -165,6 +166,6 @@ def get_score(review, mode=[]):
     total_importance = sum([impt for _, impt in sentence_scores])
     # Nullity check
     if total_importance == 0: 
-        return 0
+        return 2.5
     total_score = sum([ score * impt / total_importance for score, impt in sentence_scores])
     return total_score + 2.5
