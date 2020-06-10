@@ -8,7 +8,7 @@ from pprint import pprint
 # Global variables
 speller = Speller(lang='en')
 lemmatizer = WordNetLemmatizer().lemmatize
-intensifiers = [word.strip() for word in open('algorithm/intensifier.txt', 'r')]
+intensifiers = [word.strip() for word in open('algorithm/intensifier.txt', 'r') if word.isalpha()]
 stopwords = nltk.corpus.stopwords.words('english')
 
 
@@ -89,11 +89,11 @@ def get_score(review, mode=[]):
         for word, pos in tokenizer(sentence):
             if pos in ['CC','IN'] and word not in stopwords:
                 has_conjunction = True
-            word = speller(word)
-            vader_score = get_vader_score(word) if get_vader_score(word) else get_vader_score(lemmatizer(word))
-            if vader_score == 0: continue
+            spelled_word = speller(word.lower())
+            vader_score = get_vader_score(spelled_word) if get_vader_score(spelled_word) else get_vader_score(lemmatizer(spelled_word))
+            # if vader_score == 0: continue
             # print([word, pos, word in intensifiers, vader_score])
-            new_word = Word(word, pos, word in intensifiers, vader_score)
+            new_word = Word(word, pos, spelled_word in intensifiers, vader_score)
             words.append(new_word)
         is_first, is_last = idx == 0, idx == len(tokenized_sentences) - 1
         # print([is_first, is_last, has_conjunction, sentence.count('!') > 1])
@@ -128,9 +128,10 @@ def get_score(review, mode=[]):
                 if not_check:
                     word_score *= -1
                 not_check = True if word == 'not' else False
-            word_scores.append((word.text, word_score))
+            word_scores.append((word.text, word.is_intensifier, word_score))
+        print("word_scores:", word_scores)
         word_scores = [score for word, score in word_scores]
-        
+
         # Pure sentence score
         sentence_score = sum(word_scores) / len(word_scores) if len(word_scores) != 0 else 0
         sentence_importance = len(word_scores)
@@ -144,6 +145,8 @@ def get_score(review, mode=[]):
         if 'exclamation' in mode and sentence.has_multiple_exclamation:
             sentence_importance *= 2
         sentence_scores.append((sentence_score, sentence_importance))
+
+    print("score, importance:", sentence_scores)
 
     # Calculate overall score
     total_importance = sum([impt for _, impt in sentence_scores])

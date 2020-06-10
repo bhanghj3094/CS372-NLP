@@ -24,9 +24,11 @@ def main():
     accuracy_naive = 0
     accuracy_neg = 0
 
-    for line in lines:
+    for idx, line in enumerate(lines[5:10]):
         review = line[0]
         answer = float(line[1])
+        if answer != 5: continue
+        print(answer, review)
 
         # Possible modes
         mode = [
@@ -41,7 +43,8 @@ def main():
             'not',
         ]
         # calculate score
-        score_naive = get_score(review, [])
+        # score_naive = get_score(review, [])
+        score_naive = 0
         score_mode = get_score(review, mode)
         print("score_naive: %7.2f, score_mode: %7.2f, answer: %5.2f" % (score_naive, score_mode, answer))
 
