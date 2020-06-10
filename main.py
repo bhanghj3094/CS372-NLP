@@ -28,15 +28,27 @@ def main():
         review = line[0]
         answer = float(line[1])
 
+        # Possible modes
+        mode = [
+            'intensifier',
+            'uppercase',
+            'threshold',
+            'is_first',
+            'is_last',
+            'conjunction',
+            'exclamation',
+            'simple_neg',
+            'not',
+        ]
         # calculate score
-        score_naive = get_score(review, ['sent'])
-        score_neg = get_score(review, ['neg'])
-        print("score_naive: %7.2f, score_neg: %7.2f, answer: %5.2f" % (score_naive, score_neg, answer))
+        score_naive = get_score(review, [])
+        score_mode = get_score(review, mode)
+        print("score_naive: %7.2f, score_mode: %7.2f, answer: %5.2f" % (score_naive, score_mode, answer))
 
         # add difference with answer
         accuracy_naive += abs(score_naive - answer)
-        accuracy_neg += abs(score_neg - answer)
-        result.append([answer, score_naive, score_neg])
+        accuracy_neg += abs(score_mode - answer)
+        result.append([answer, score_naive, score_mode])
 
     # print overall accuracy
     print("accuracy_naive: %6.3f, accuracy_neg: %6.3f" % (accuracy_naive / len(lines), accuracy_neg / len(lines)))

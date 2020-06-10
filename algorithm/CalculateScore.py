@@ -33,13 +33,14 @@ def tokenizer(sent):
     """Sentence tokenizer with removing - in words """
     tokenized_list = nltk.word_tokenize(sent)
     for i, word in enumerate(tokenized_list):
+        # TODO: add more patterns
         if "-" in word:
-            seperated_words = word.split("-")
-        elif word.endswith("n't"):
-            seperated_words = [word[:-3], 'not']
+            seperated_words = [ e for e in word.split("-") if e ]
+        elif word == "n't":
+            tokenized_list[i] = 'not'
+            continue
         else:
             continue
-
         # if modified
         tokenized_list.pop(i)
         for word in seperated_words[::-1]:
@@ -47,6 +48,7 @@ def tokenizer(sent):
     return nltk.pos_tag(tokenized_list)
 
 
+# UNUSED
 def rate_five(score):
     """ Converts score to 0 ~ 5. """
     return score[0] - score[1]
@@ -58,8 +60,18 @@ def get_score(review, mode=[]):
     Args:
         review (String): text of review. 
         mode (List): list of modes to apply. 
-            'sent' - additional scores to sentences.
-            'neg' - check double negation.
+            # words
+            'intensifier' - give weight on word behind intensifiers
+            'uppercase' - check if word is upper
+            'threshold' - ignore small scores
+            # sentences
+            'is_first' - weight on first sentence
+            'is_last' - weight on last sentence
+            'conjunction' - weight on conjunctions
+            'exclamation' - weight on exclamations
+            # relations
+            'simple_neg' - check double negation.
+            'not' - check negation by 'not'.
     
     Returns:
         score (Tuple): [positivity_score, negativity_score]
@@ -71,54 +83,72 @@ def get_score(review, mode=[]):
     sentences = []
     tokenized_sentences = nltk.sent_tokenize(review)
     for idx, sentence in enumerate(tokenized_sentences):
-        word_list = []
+        words = []
         has_conjunction = False
         for word, pos in tokenizer(sentence):
             if pos in ['CC','IN'] and word not in stopwords:
                 has_conjunction = True
             word = speller(word)
             vader_score = get_vader_score(word) if get_vader_score(word) else get_vader_score(lemmatizer(word))
+            # print([word, pos, word in intensifiers, vader_score])
             new_word = Word(word, pos, word in intensifiers, vader_score)
-            word_list.append(new_word)
+            words.append(new_word)
         is_first, is_last = idx == 0, idx == len(tokenized_sentences) - 1
-        new_sentence = Sentence(word_list, is_first, is_last, has_conjunction, sentence.count('!') > 1)
+        # print([is_first, is_last, has_conjunction, sentence.count('!') > 1])
+        new_sentence = Sentence(words, is_first, is_last, has_conjunction, sentence.count('!') > 1)
         sentences.append(new_sentence)
 
+    sentence_scores = []  # sentence score, importance
+    for sentence in sentences:
+        # Iterate words
+        valid_word_count = 0
+        intensifier_check = False
+        simple_negative_check = False
+        not_check = False
 
-    # tagged_review = [
-    #     nltk.pos_tag(nltk.word_tokenize(sent))
-    #     for sent in nltk.sent_tokenize(review)
-    # ]
-    # for index, sentence in enumerate(tagged_review):
-    #     for word, tag in sentence:
-    #         if not check_word(word):
-    #             continue
-    #         # if verb, lemmatize.
-    #         lemmatized_word = stemmer(word) if tag.startswith('v') else word
-    #         new_score = get_sentiment(lemmatized_word, tag)
+        # Initialize sentence score
+        sentence_score = 0
+        for word in sentence.words:
+            word_score = word.vader_score
+            if 'intensifier' in mode:
+                if intensifier_check:
+                    word_score *= 2
+                intensifier_check = True if word.is_intensifier else False
+            if 'uppercase' in mode and word.is_uppercase:
+                word_score *= 2
+            if 'threshold' in mode and abs(word.vader_score) < 0.3:
+                word_score = 0
+            # Negativity check
+            if 'simple_neg' in mode:
+                if simple_negative_check:
+                    word_score *= -1
+                simple_negative_check = True if word_score < 0 else False
+            if 'not' in mode:
+                if not_check:
+                    word_score *= -1
+                not_check = True if word == 'not' else False
+            # Count words with score
+            if word_score != 0: valid_word_count += 1
+            sentence_score += word_score
+        
+        # Pure sentence score
+        sentence_score = sentence_score / valid_word_count if valid_word_count != 0 else 0
+        sentence_importance = valid_word_count
 
-    #         # new_score is None on error. 
-    #         if new_score:
-    #             count += 1  # found score
-    #             new_pos, new_neg, new_obj = new_score
-    #             # sentence check
-    #             is_conclusing = (index == len(tagged_review) - 1) or \
-    #                             (index == len(tagged_review) - 2)
-    #             if 'sent' in mode and is_conclusing:
-    #                 new_pos *= 5
-    #                 new_neg *= 5
-    #             # negativity check
-    #             if 'neg' in mode and neg_check == 1:
-    #                 # reverse postivity and negativity. 
-    #                 new_pos, new_neg = new_neg, new_pos
-    #             neg_check = 1 if new_pos < new_neg else 0
-    #             # add score
-    #             score[0] += new_pos
-    #             score[1] += new_neg
-
-    # score = [s * 100 / count for s in score] if count != 0 else score
-    # return rate_five(score)
-    return 0
-
-# Initialization : Get vader score from txt file
-init_vader()
+        if 'is_first' in mode and sentence.is_first:
+            sentence_importance *= 2
+        if 'is_last' in mode and sentence.is_last:
+            sentence_importance *= 2
+        if 'conjunction' in mode and sentence.has_conjunction:
+            sentence_importance *= 2
+        if 'exclamation' in mode and sentence.has_multiple_exclamation:
+            sentence_importance *= 2        
+        sentence_scores.append((sentence_score, sentence_importance))
+    
+    # Calculate overall score
+    total_importance = sum([impt for _, impt in sentence_scores])
+    # Nullity check
+    if total_importance == 0: 
+        return 0
+    total_score = sum([ score * impt / total_importance for score, impt in sentence_scores])
+    return total_score

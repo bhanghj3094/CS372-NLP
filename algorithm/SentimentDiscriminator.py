@@ -1,14 +1,17 @@
 import nltk, os.path
 from nltk.corpus import wordnet as wn
 from nltk.corpus import sentiwordnet as swn
+from collections import defaultdict
 
 
 ######### Helper Functions ########
+# UNUSED
 def synset_name(synset):
     """ function to change synset into string """
     return synset.name().split(".")[0]
 
 
+# UNUSED
 def find_wn_synset(word, pos):
     """ function to find wordnet synset with input word and POS """
     synsets = wn.synsets(word)
@@ -20,17 +23,7 @@ def find_wn_synset(word, pos):
     return synsets[0]
 
 
-def check_word(word):
-    """ function to check if the word is normal word """
-    if not word.isalpha():
-        if (
-            not (word.endswith(",") or word.endswith("."))
-            and not word[: len(word) - 2].isalpha()
-        ):
-            return False
-    return True
-
-
+# UNUSED
 def tag_convert(tag):
     """ function to convert nltk.tag to wordnet tag """
     if tag in ["RB", "RBR", "RBS"]:
@@ -44,20 +37,7 @@ def tag_convert(tag):
     return None
 
 
-######### Main Functions #########
-
-vader_score = dict()
-
-def init_vader():
-    """ Initializing vader score """
-    f = open(os.path.dirname(__file__) + "/../dataset/vader_lexicon.txt", "r")
-    while True:
-        line = f.readline()
-        if not line: break
-        token, score, _, _ = line.strip().split('\t')     # list of [TOKEN, MEAN-SENTIMENT-RATING, STANDARD DEVIATION, RAW-HUMAN-SENTIMENT-RATINGS]
-        vader_score[token] = score
-
-
+# UNUSED
 def additional_sentiment(word, tag):
     """ Additional sentiment calculator (You can add more pattern) """
     if word == "great":
@@ -67,6 +47,7 @@ def additional_sentiment(word, tag):
     return None
 
 
+# UNUSED
 def get_sentiment(word, tag):
     """ returns (pos, neg, obj) score of input word. Returns None if error """
     if not additional_sentiment(word, tag) == None:
@@ -85,6 +66,25 @@ def get_sentiment(word, tag):
         swn_synset.obj_score() ** 2,
     ]
 
+
+######### Main Functions #########
+vader_score = defaultdict(int)
+
+
+def init_vader():
+    """ Initializing vader score """
+    f = open(os.path.dirname(__file__) + "/../dataset/vader_lexicon.txt", "r")
+    while True:
+        line = f.readline()
+        if not line: break
+        token, score, _, _ = line.strip().split('\t')     # list of [TOKEN, MEAN-SENTIMENT-RATING, STANDARD DEVIATION, RAW-HUMAN-SENTIMENT-RATINGS]
+        vader_score[token] = score
+
+
 def get_vader_score(word):
-    """ Return vader score. If no score exist, return None """
-    return vader_score.get(word.lower(), None)
+    """ Return vader score. """
+    return float(vader_score[word.lower()])
+
+
+# Initialization : Get vader score from txt file
+init_vader()
