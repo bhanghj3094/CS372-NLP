@@ -148,7 +148,7 @@ def get_score(review, mode=[]):
 
         # Pure sentence score
         sentence_score = sum(word_scores) / valid_word_count if valid_word_count != 0 else 0
-        sentence_importance = valid_word_count
+        sentence_importance = valid_word_count + sentence.special_score
 
         if 'is_first' in mode and sentence.is_first:
             sentence_importance *= 2
