@@ -27,7 +27,6 @@ def main():
     for idx, line in enumerate(lines):
         review = line[0]
         answer = float(line[1])
-        if answer != 5: continue
         print(answer, review)
 
         # Possible modes
