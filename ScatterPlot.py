@@ -23,7 +23,7 @@ scatter = plt.scatter(rate, score1, color="black")
 plt.xlim(0, 6)
 plt.ylim(np.min(score1) - 1, np.max(score1) + 1)
 
-plt.title("ScatterPlot of Rate and Review Score(Naive Ver.)", pad=10)
+plt.title("Rate and Review Score(Naive Ver.)", pad=10)
 plt.xlabel("Rate", labelpad=10)
 plt.ylabel("Review Score", labelpad=10)
 
@@ -33,7 +33,7 @@ scatter = plt.scatter(rate, score2, color="black")
 plt.xlim(0, 6)
 plt.ylim(np.min(score2) - 1, np.max(score2) + 1)
 
-plt.title("ScatterPlot of Rate and Review Score(Double Negation Ver.)", pad=10)
+plt.title("Rate and Review Score(Mode Ver.)", pad=10)
 plt.xlabel("Rate", labelpad=10)
 plt.ylabel("Review Score", labelpad=10)
 
