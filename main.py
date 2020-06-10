@@ -15,6 +15,9 @@ def csv_write(file_name, result):
 
 
 def main():
+    # Initialization : Get vader score from txt file
+    init_vader()
+
     # open corpus
     reader = Reader()
     lines = reader.open_csv(1, 0)
