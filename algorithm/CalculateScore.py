@@ -2,7 +2,6 @@ import nltk
 from nltk.stem import WordNetLemmatizer
 from autocorrect import Speller
 from .SentimentDiscriminator import *
-from pprint import pprint
 
 
 # Global variables
@@ -111,6 +110,7 @@ def get_score(review, mode=[]):
         neutralizer_check = False
         simple_negative_check = False
         not_check = False
+        word_multiply = 1.4
         
         # Iterate words
         word_scores = []
@@ -119,14 +119,14 @@ def get_score(review, mode=[]):
             word_score = word.vader_score
             if 'intensifier' in mode:
                 if intensifier_check:
-                    word_score *= 2
+                    word_score *= word_multiply
                 intensifier_check = True if word.is_intensifier else False
             if 'neutralizer' in mode:
                 if neutralizer_check:
-                    word_score /= 2
+                    word_score /= word_multiply
                 neutralizer_check = True if word.is_neutralizer else False
             if 'uppercase' in mode and word.is_uppercase:
-                word_score *= 2
+                word_score *= word_multiply
             if 'threshold' in mode and abs(word.vader_score) < 0.3:
                 word_score = 0
             # Negativity check
@@ -137,30 +137,38 @@ def get_score(review, mode=[]):
             if 'not' in mode:
                 if not_check:
                     word_score *= -1
-                    word_scores[word_idx-1][2] *= -1
+                    # TODO: catch 'not', 'no' behind more than one.
+                    back_idx = word_idx-1
+                    while not word_scores[back_idx][0] in ['not', 'no']:
+                        back_idx -= 1
+                    word_scores[back_idx][2] *= -1
                     if word_score == 0:
-                        word_scores[word_idx-1][2] = 0
+                        word_scores[back_idx][2] = 0
                 not_check = True if word.text in ['not','no'] else False
             if word_score != 0: valid_word_count += 1
-            word_scores.append([word.text, word.is_intensifier, word_score])
-        print("word_scores:", word_scores)
-        word_scores = [score for word, _, score in word_scores]
+            word_scores.append([word.text, word_score, word.is_intensifier, word.pos_tag])
+        # print("word_scores:", word_scores)
+        word_scores = [score for word, score, _, _ in word_scores]
 
+        # Add special score
+        if sentence.special_score != 0:
+            word_scores.append(sentence.special_score)
+            valid_word_count += 1
         # Pure sentence score
         sentence_score = sum(word_scores) / valid_word_count if valid_word_count != 0 else 0
-        sentence_importance = valid_word_count + sentence.special_score
+        sentence_importance = valid_word_count
+        sentence_multiply = 1.5
 
         if 'is_first' in mode and sentence.is_first:
-            sentence_importance *= 2
+            sentence_importance *= sentence_multiply
         if 'is_last' in mode and sentence.is_last:
-            sentence_importance *= 2
+            sentence_importance *= sentence_multiply
         if 'conjunction' in mode and sentence.has_conjunction:
-            sentence_importance *= 2
+            sentence_importance *= sentence_multiply
         if 'exclamation' in mode and sentence.has_multiple_exclamation:
-            sentence_importance *= 2
+            sentence_importance *= sentence_multiply
         sentence_scores.append((sentence_score, sentence_importance))
-
-    print("score, importance:", sentence_scores)
+    # print("score, importance:", sentence_scores)
 
     # Calculate overall score
     total_importance = sum([impt for _, impt in sentence_scores])
