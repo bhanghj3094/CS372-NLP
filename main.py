@@ -30,7 +30,7 @@ def main():
     for idx, line in enumerate(lines):
         review = line[0]
         answer = float(line[1])
-        print(answer, review)
+        # print(answer, review)
 
         # Possible modes
         mode = [
