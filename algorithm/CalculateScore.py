@@ -141,9 +141,9 @@ def get_score(review, mode=[]):
                     back_idx = word_idx-1
                     while not word_scores[back_idx][0] in ['not', 'no']:
                         back_idx -= 1
-                    word_scores[back_idx][2] *= -1
+                    word_scores[back_idx][1] *= -1
                     if word_score == 0:
-                        word_scores[back_idx][2] = 0
+                        word_scores[back_idx][1] = 0
                 not_check = True if word.text in ['not','no'] else False
             if word_score != 0: valid_word_count += 1
             word_scores.append([word.text, word_score, word.is_intensifier, word.pos_tag])
