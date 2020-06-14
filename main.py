@@ -62,14 +62,18 @@ def main():
     accuracy_naive = 0
     accuracy_mode = 0
 
+    # evaluation for sentiment discrimination
+    correct_cnt = 0
+    wrong_cnt = 0
+    neutral_cnt = 0
+
     for idx, line in enumerate(lines):
         review = line[0]
         answer = float(line[1])
         # print(answer, review)
 
         # calculate score
-        # score_naive = get_score(review, [])
-        score_naive = 0
+        score_naive = get_score(review, [])
         score_mode = get_score(review, mode)
         print("score_naive: %7.2f, score_mode: %7.2f, answer: %5.2f" % (score_naive, score_mode, answer))
 
@@ -78,8 +82,32 @@ def main():
         accuracy_mode += abs(score_mode - answer)
         result.append([answer, score_naive, score_mode])
 
+        # Count correct, wrong. 
+        is_correct = (answer > 3 and score_mode > 2.5) or \
+                     (answer == 3 and 2 <= score_mode <= 4) or \
+                     (answer < 3 and score_mode < 2.5)
+        is_wrong = (answer > 3 and score_mode < 2.5) or \
+                   (answer == 3 and (score_mode < 2 or score_mode > 4)) or \
+                   (answer < 3 and score_mode > 2.5)
+        assert not (is_correct and is_wrong)
+        if is_correct: correct_cnt += 1
+        elif is_wrong: wrong_cnt += 1
+        else: neutral_cnt += 1
+
     # print overall accuracy
     print("accuracy_naive: %6.3f, accuracy_mode: %6.3f" % (accuracy_naive, accuracy_mode))
+
+    # print overall discriminator performance
+    total = correct_cnt + wrong_cnt + neutral_cnt
+    print("True Positive: %6.3f" % (correct_cnt / total))
+    print("False Positive: %6.3f" % (wrong_cnt / total))
+    print("False Negative: %6.3f" % (neutral_cnt / total))
+    ####################################################
+    # True Positive     : Correctly discriminated reviews. 
+    # False Positive    : Wrongly discriminated reviews.
+    # True Negative     : -- (None here)
+    # False Negative    : Should have discriminated but couldn't. (Those with score 2.5, on rate 1,2,4,5)
+    ####################################################
 
     # save
     csv_write("scoring_result.csv", result)
