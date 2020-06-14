@@ -2,6 +2,19 @@ from dataset.csvReader import Reader
 from algorithm.CalculateScore import *
 
 
+def open_youtube(file_name):
+    f = open('dataset/Youtube Crawling/' + file_name, 'rt', encoding='UTF8')
+
+    comments = []
+    while True:
+        line = f.readline()
+        if not line: break
+        line = eval(line)
+        comments.append(line["text"])
+    f.close()
+    return comments
+
+
 def csv_write(file_name, result):
     csv_file = open(file_name, "w")
     
@@ -18,6 +31,28 @@ def main():
     # Initialization : Get vader score from txt file
     init_vader()
 
+    # Possible modes
+    mode = [
+        'intensifier',
+        'neutralizer',
+        'uppercase',
+        'threshold',
+        'is_first',
+        'is_last',
+        'conjunction',
+        'exclamation',
+        'simple_neg',
+        'not',
+    ]
+
+    # # Youtube Data
+    # reviews = open_youtube("output.txt")[:100]
+    # for review in reviews:
+    #     youtube_score = get_score(review, mode)
+    #     print("Review Text: %s" % review)
+    #     print("Score Mode: %7.2f" % youtube_score)
+    # return None
+
     # open corpus
     reader = Reader()
     lines = reader.open_csv(1, 0)
@@ -32,19 +67,6 @@ def main():
         answer = float(line[1])
         # print(answer, review)
 
-        # Possible modes
-        mode = [
-            'intensifier',
-            'neutralizer',
-            'uppercase',
-            'threshold',
-            'is_first',
-            'is_last',
-            'conjunction',
-            'exclamation',
-            'simple_neg',
-            'not',
-        ]
         # calculate score
         # score_naive = get_score(review, [])
         score_naive = 0
