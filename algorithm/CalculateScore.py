@@ -174,6 +174,6 @@ def get_score(review, mode=[]):
     total_importance = sum([impt for _, impt in sentence_scores])
     # Nullity check
     if total_importance == 0: 
-        return 2.5
+        return 3
     total_score = sum([ score * impt / total_importance for score, impt in sentence_scores])
-    return total_score + 2.5
+    return total_score + 3
