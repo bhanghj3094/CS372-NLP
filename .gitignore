@@ -8,6 +8,7 @@ venv/
 !special_words.txt
 !intensifier.txt
 !neutralizer.txt
+!youtube_reviews_for_demo.txt
 *.csv
 *csv
 
