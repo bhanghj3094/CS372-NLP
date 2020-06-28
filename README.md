@@ -1,4 +1,4 @@
-# Preference Discriminator
+# Filtering Malicious Comments
 
 This is a repository for team project in CS372, 2020 Spring, KAIST.
 
@@ -21,6 +21,8 @@ Please refer to the scheme [here](./dataset).
 Refer to the following documents:
 
 * [Interim Report](./document/CS372_project_interim_23.pdf)
+* [Final Report](./document/CS372_project_final_23.pdf)
+* [Final Presentation](./document/CS372_Presentation_Team23.pdf)
 
 ## Development
 

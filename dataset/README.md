@@ -3,8 +3,8 @@
 ### Data Scheme
 
 > (   
-> &nbsp;&nbsp;&nbsp;&nbsp;reviewText,   
-> &nbsp;&nbsp;&nbsp;&nbsp;ratings (0 ~ 5)   
+> &nbsp;&nbsp;&nbsp;&nbsp;review_text,   
+> &nbsp;&nbsp;&nbsp;&nbsp;ratings (1 ~ 5)   
 > )
 
 
@@ -17,15 +17,19 @@
 5. [Book Review (Multi-Domain Sentiment Dataset)](http://www.cs.jhu.edu/~mdredze/datasets/sentiment/index2.html)
 
 
-### CSVReader.py
-#### Option for Using
+### CSV Reader
+
+#### Options
 1. Place csvReader.py in the root directory of Dataset
-2. Dataset folder number starts from 1 (1~5)
+2. Dataset folder number starts from 1 (1 ~ 5)
 3. File number starts from 0
 
 #### Usage
-> rdr = Reader()
-> rdr.open_csv(3,0) #folder#_3 - file_0
+> reader = Reader()
+> reader.open_csv(3,0)  # folder_#3 - file_#0
 
 #### Return
-List of Tuples : [(reviewText,rating),]
+List of tuples : [  
+&nbsp;&nbsp;&nbsp;&nbsp;( review_text, rating ),  
+&nbsp;&nbsp;&nbsp;&nbsp;...  
+]
