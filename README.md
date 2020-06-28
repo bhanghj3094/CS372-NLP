@@ -57,7 +57,7 @@ Refer to [commit messages in the repository](https://github.com/bhanghj3094/CS37
 > Sorted in Hangeul (Korean alphabetical) order. 
 
 * [Seung Ho, Kim](https://github.com/winningarc)
-* [Jae Hyeon, Myeong](https://github.com/mjhbest)
+* [Jae Hyeon, Myung](https://github.com/mjhbest)
 * [Hyoung Jo, Bhang](https://github.com/bhanghj3094)
 * [Jin Won, Lee](https://github.com/grape-tasting-acid)
 * [Da Eun, Choi](https://github.com/CheddarChoi)
