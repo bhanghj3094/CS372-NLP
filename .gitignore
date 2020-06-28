@@ -9,7 +9,6 @@ venv/
 !intensifier.txt
 !neutralizer.txt
 *.csv
-*csv
 
 # env
 .vscode
@@ -22,5 +21,5 @@ venv/
 # Others
 .DS_store
 .cache
-.docx
-.doc
+*.docx
+*.doc
