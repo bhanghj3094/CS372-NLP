@@ -45,17 +45,26 @@ def main():
         'not',
     ]
 
-    # # Youtube Data
-    # reviews = open_youtube("output.txt")[:100]
-    # for review in reviews:
-    #     youtube_score = get_score(review, mode)
-    #     print("Review Text: %s" % review)
-    #     print("Score Mode: %7.2f" % youtube_score)
-    # return None
+    # Youtube Data
+    youtube_result = []
+    reviews = open_youtube("youtube_reviews_for_demo.txt")
+    for review in reviews[:500]:
+        try:
+            youtube_score = get_score(review, mode)
+            youtube_result.append((review,youtube_score))
+        except:
+            continue
+    
+    print("########## FILTERED OUT 50 REVIEWS WITH THE LOWEST SCORE ##########", end="\n\n")
+    youtube_result = sorted(youtube_result, key = lambda x: x[1])
+    for review in youtube_result[:50]:
+        print("Review Text: %s" % review[0])
+        print("Score Mode: %7.2f" % review[1], end='\n\n')
+    return None
 
-    # open corpus
+    """ # open corpus
     reader = Reader()
-    lines = reader.open_csv(1, 0)
+    lines = reader.open_csv(3, 0)
 
     # result
     result = []
@@ -67,7 +76,7 @@ def main():
     wrong_cnt = 0
     neutral_cnt = 0
 
-    for idx, line in enumerate(lines):
+    for idx, line in enumerate(lines[:2000]):
         review = line[0]
         answer = float(line[1])
         # print(answer, review)
@@ -121,7 +130,7 @@ def main():
     ####################################################
 
     # save
-    csv_write("scoring_result.csv", result)
+    csv_write("scoring_result.csv", result) """
 
 
 if __name__ == "__main__":
